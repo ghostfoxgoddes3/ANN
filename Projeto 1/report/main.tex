@@ -1,0 +1,168 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{tabularx}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=blue!70!black
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.2ex plus 0.5ex minus .2ex}{0.6ex}
+\titlespacing*{\subsection}{0pt}{1.0ex plus 0.4ex minus .2ex}{0.4ex}
+
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\begin{center}
+    {\LARGE \textbf{Projeto 1: Regressão com MLP e Estudo de Ablação}} \\[0.35em]
+    {\large Disciplina: Introdução às Redes Neurais Artificiais} \\[0.3em]
+    \textbf{Autor:} Gabriely Di Folco Rocha (RA: 188892) \\[0.2em]
+    \textbf{Repositório:} \url{https://github.com/ghostfoxgoddes3/ANN}
+\end{center}
+\vspace{-0.5em}
+\hrule
+\vspace{0.8em}
+
+\section{Configuração Experimental e Reprodutibilidade}
+
+\subsection{Pré-processamento e Partição dos Dados (se necessário)}
+A partição dos dados seguiu estritamente a proporção de \textbf{10\% para treino}, \textbf{10\% para validação} e \textbf{80\% para teste}. Essa restrição intencional no volume de treino torna a tarefa suscetível ao sobreajuste, tornando a investigação de hiperparâmetros e técnicas de regularização crítica.
+
+Descreva os procedimentos de escalonamento empregados nos atributos e no alvo (ex.: padronização ou normalização \textit{Min-Max}). Ressalte que o cálculo de médias/desvios (\textit{fit}) ocorreu exclusivamente sobre os 10\% de treino, aplicando-se apenas o \textit{transform} às partições de validação e teste para mitigar vazamento de dados (\textit{data leakage}).
+
+\subsection{Definição e Otimização Empírica do Modelo Baseline (Vanilla)}
+O modelo \textit{baseline} é uma rede MLP básica treinada estritamente com \textbf{SGD padrão} (sem aceleradores adaptativos como Adam e sem termo de \textit{momentum}). Nenhuma regularização explícita (L1, L2, Dropout) foi aplicada nesta fase.
+
+A busca empírica pela melhor configuração envolveu a variação sistemática do número de camadas, neurônios por camada, taxa de aprendizado inicial ($\eta$), funções de ativação e tamanho de lote (\textit{batch size}), avaliando-se o desempenho estritamente pelo menor erro na validação. A Tabela~\ref{tab:baseline_hiper} detalha a busca empírica realizada e a topologia final selecionada.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Espaço amostrado e configuração final da MLP Baseline (Vanilla).}
+\label{tab:baseline_hiper}
+\begin{tabularx}{\textwidth}{lXl}
+\toprule
+\textbf{Hiperparâmetro} & \textbf{Valores Explorados} & \textbf{Configuração Escolhida (Vanilla)} \\
+\midrule
+Topologia das Camadas & [1, 2 e 3 camadas; [32, 64, 128, 256] neurônios] & Entrada $\rightarrow$ Densa(128) $\rightarrow$ Densa(64) $\rightarrow$ Saída(1) \\
+Função de Ativação    & ReLU, LeakyReLU, Tanh & ReLU \\
+Otimizador            & SGD Padrão (\textbf{momentum = 0.0}) & SGD ($\eta = 0.01$) \\
+Tamanho do Lote       & 16, 32, 64, 128 & 32 \\
+Função de Custo       & Erro Quadrático Médio (MSE) & MSELoss \\
+Critério de Parada    & Early Stopping (monitorando erro de validação) & Patience = 20 épocas \\
+Semente Aleatória     & Sementes fixas para reprodutibilidade & Seed = 42 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textcolor{red}{Inserir os erros de treino e validação dos modelos avaliados como baseline}
+
+\section{Dinâmica de Treinamento e Convergência (Baseline vs. Modificados)}
+
+A evolução das curvas de função de perda (MSE) e métrica auxiliar (MAE) ao longo das épocas foi monitorada para verificar a estabilidade do SGD e comparar a dinâmica do \textit{baseline} com os modelos contendo componentes adicionais (Figura~\ref{fig:loss_evolution}).
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \fbox{\parbox[c][3.8cm][c]{\linewidth}{\centering \textit{[Curva de Treino e Validação: Baseline Vanilla]}}}
+    \caption{Convergência da MLP Baseline.}
+    \label{fig:loss_baseline}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \fbox{\parbox[c][3.8cm][c]{\linewidth}{\centering \textit{[Comparação das Curvas de Validação: Baseline vs. Modelos com L1, L2, Dropout, Momentum]}}}
+    \caption{Comparação de convergência na validação.}
+    \label{fig:loss_ablation}
+\end{minipage}
+\label{fig:loss_evolution}
+\end{figure}
+
+\textbf{Análise Crítica da Dinâmica de Convergência:}
+\begin{itemize}
+    \item \textbf{Estabilidade do SGD:} Como a taxa de aprendizado influenciou oscilações no gradiente sem a presença de termos adaptativos ou de momentum?
+    \item \textbf{Sobreajuste (Overfitting):} Dado o baixo volume de dados de treinamento (10\%), em que momento o erro de treino e o erro de validação do baseline se descolaram?
+    \item \textbf{Aceleração com Momentum:} A inclusão do momentum reduziu o número de épocas necessárias para convergir em comparação com o SGD vanilla?
+\end{itemize}
+
+\section{Estudo de Ablação e Desempenho no Conjunto de Teste}
+
+Para isolar rigorosamente o efeito de cada componente, a arquitetura base (camadas, ativações e sementes) foi mantida idêntica à da Tabela~\ref{tab:baseline_hiper}, avaliando-se as seguintes variações individuais:
+\begin{enumerate}
+    \item \textbf{Baseline + Momentum:} SGD com fator de momentum (ex.: $\beta = 0.9$).
+    \item \textbf{Baseline + Regularização L2 (Weight Decay):} Penalização quadrática dos pesos ($\lambda_{\text{L2}}$).
+    \item \textbf{Baseline + Regularização L1 (Lasso):} Penalização por norma $L_1$ para incentivo à esparsidade ($\lambda_{\text{L1}}$).
+    \item \textbf{Baseline + Dropout:} Desativação aleatória de neurônios nas camadas ocultas ($p \in [0.1, 0.5]$).
+    \item \textbf{Outros Modelos:} Combinação dos melhores componentes identificados.
+\end{enumerate}
+
+\textcolor{red}{Exemplo de apresentação de resultado: } A avaliação final foi realizada sobre os 80\% de dados de teste não utilizados no treino nem no ajuste fino. Os resultados comparativos estão organizados na Tabela~\ref{tab:ablation_metrics}.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Resultados do Estudo de Ablação no Conjunto de Teste (80\% dos dados).}
+\label{tab:ablation_metrics}
+\begin{tabularx}{\textwidth}{lccccc}
+\toprule
+\textbf{Modelo / Variação} & \textbf{MSE} & \textbf{RMSE} & \textbf{MAE} & \textbf{$R^2$} & \textbf{Épocas até Convergência} \\
+\midrule
+Baseline Vanilla (SGD sem momentum) & 28.45 & 5.33 & 3.92 & 0.72 & 85 \\
+Baseline + Momentum ($\beta = 0.9$)   & 21.10 & 4.59 & 3.25 & 0.79 & 42 \\
+Baseline + Regularização L2 ($\lambda = 10^{-3}$) & 19.80 & 4.45 & 3.12 & 0.81 & 92 \\
+Baseline + Regularização L1 ($\lambda = 10^{-4}$) & 22.30 & 4.72 & 3.40 & 0.78 & 88 \\
+Baseline + Dropout ($p = 0.2$)         & 18.50 & 4.30 & 3.01 & 0.83 & 110 \\
+\textbf{Modelo Combinado (Melhor)}     & \textbf{15.20} & \textbf{3.90} & \textbf{2.68} & \textbf{0.86} & 55 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \fbox{\parbox[c][3.8cm][c]{\linewidth}{\centering \textit{[Figura 2: Parity Plot ($Y_{\text{real}}$ vs. $Y_{\text{pred}}$) -- Baseline vs. Melhor Modelo]}}}
+    \caption{Dispersão real vs. predito no teste ($y = x$).}
+    \label{fig:parity}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \fbox{\parbox[c][3.8cm][c]{\linewidth}{\centering \textit{[Figura 3: Gráfico de Resíduos ($y - \hat{y}$) do Melhor Modelo]}}}
+    \caption{Distribuição dos resíduos no conjunto de teste.}
+    \label{fig:residuals}
+\end{minipage}
+\end{figure}
+
+\section{Discussão e Lições Aprendidas}
+
+\begin{itemize}
+    \item \textbf{Impacto do SGD Vanilla no Regime de Poucos Dados (10\% de Treino):} Discuta a susceptibilidade da rede ao sobreajuste neste cenário. Qual técnica de regularização (L1, L2 ou Dropout) exerceu maior contenção na variância do modelo?
+    \item \textbf{Ação Específica dos Hiperparâmetros de Ablação:}
+    \begin{itemize}
+        \item O \textit{momentum} alterou significativamente a suavidade e a velocidade da curva de aprendizado?
+        \item Houve diferença observável no comportamento do erro entre L1 (indução à esparsidade) e L2 (atenuação de pesos grandes)?
+        \item Em que intensidade o \textit{Dropout} impactou o erro de treino versus a generalização no teste de 80\%?
+        \item \textcolor{red}{inserir discussão sobre outras análises realizadas}
+    \end{itemize}
+    \item \textbf{Análise de Resíduos e Limitações:} O modelo apresenta assimetria ou perda de acurácia acentuada nas caudas da distribuição de valores reais? Quais padrões de erro persistem mesmo com o modelo regularizado?
+    \item \textcolor{red}{Algo mais?}
+\end{itemize}
+
+\end{document}
