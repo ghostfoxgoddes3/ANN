@@ -1,0 +1,12 @@
+# ambiente virtual
+.venv/
+
+# arquivos Python temporarios
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# arquivos temporarios
+*.tmp
