@@ -29,8 +29,15 @@ def analyze_split(split_name):
         alpha=0.7,
     )
 
-    min_value = min(y.min(), y_pred.min())
-    max_value = max(y.max(), y_pred.max())
+    min_value = min(
+        y.min(),
+        y_pred.min(),
+    )
+
+    max_value = max(
+        y.max(),
+        y_pred.max(),
+    )
 
     plt.plot(
         [min_value, max_value],
@@ -86,7 +93,7 @@ def analyze_split(split_name):
 
     plt.close()
 
-    # resíduos vs previsão
+    # resíduos vs valor predito
     plt.figure(figsize=(10, 5))
 
     plt.scatter(
@@ -116,17 +123,7 @@ def analyze_split(split_name):
 
     plt.close()
 
-    # estatísticas dos resíduos
-    residual_summary = {
-        "split": split_name,
-        "mean_residual": np.mean(residual),
-        "std_residual": np.std(residual),
-        "min_residual": np.min(residual),
-        "max_residual": np.max(residual),
-        "median_residual": np.median(residual),
-        "rmse": rmse,
-    }
-        # histograma dos resíduos
+    # histograma dos resíduos
     plt.figure(figsize=(10, 5))
 
     plt.hist(
@@ -164,6 +161,25 @@ def analyze_split(split_name):
 
     plt.close()
 
+    # estatísticas dos resíduos
+    q1 = np.quantile(residual, 0.25)
+    q3 = np.quantile(residual, 0.75)
+
+    residual_summary = {
+        "split": split_name,
+        "mean_residual": np.mean(residual),
+        "std_residual": np.std(residual),
+        "min_residual": np.min(residual),
+        "max_residual": np.max(residual),
+        "median_residual": np.median(residual),
+        "q1_residual": q1,
+        "q3_residual": q3,
+        "iqr_residual": q3 - q1,
+        "skewness": pd.Series(residual).skew(),
+        "kurtosis": pd.Series(residual).kurt(),
+        "rmse": rmse,
+    }
+
     return residual_summary
 
 
@@ -174,6 +190,7 @@ for split_name in SPLITS:
         analyze_split(split_name)
     )
 
+
 results_df = pd.DataFrame(results)
 
 results_df.to_csv(
@@ -181,6 +198,6 @@ results_df.to_csv(
     index=False,
 )
 
+
 print("\nResumo dos resíduos:")
 print(results_df.to_string(index=False))
-

@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\usepackage{float}
 \usepackage[margin=2cm]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
@@ -19,11 +20,27 @@
     urlcolor=blue!70!black
 }
 
-\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
-\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+\titleformat{\section}
+{\large\bfseries}
+{\thesection.}
+{0.5em}
+{}
 
-\titlespacing*{\section}{0pt}{1.2ex plus 0.5ex minus .2ex}{0.6ex}
-\titlespacing*{\subsection}{0pt}{1.0ex plus 0.4ex minus .2ex}{0.4ex}
+\titleformat{\subsection}
+{\normalsize\bfseries}
+{\thesubsection.}
+{0.5em}
+{}
+
+\titlespacing*{\section}
+{0pt}
+{1.2ex plus 0.5ex minus .2ex}
+{0.6ex}
+
+\titlespacing*{\subsection}
+{0pt}
+{1.0ex plus 0.4ex minus .2ex}
+{0.4ex}
 
 \setlength{\parskip}{0.45em}
 \setlength{\parindent}{0pt}
@@ -46,23 +63,23 @@
 
 \subsection{Inspeção e Caracterização dos Dados}
 
-O conjunto de dados utilizado no projeto possui 300 observações e duas
-variáveis numéricas, denominadas $x$ e $y$. A variável $x$ será utilizada
-como atributo de entrada do modelo, enquanto $y$ será utilizada como
-variável-alvo da tarefa de regressão.
+O conjunto de dados utilizado no projeto, denominado
+\texttt{dataset\_p1}, possui 300 observações e duas variáveis numéricas,
+$x$ e $y$. A variável $x$ foi utilizada como atributo de entrada da
+rede, enquanto $y$ corresponde à variável-alvo da tarefa de regressão.
 
 Não foram identificados valores ausentes no conjunto de dados. As duas
-variáveis apresentam tipo numérico de ponto flutuante (\texttt{float64}).
-
-A variável $x$ possui 300 valores distintos, distribuídos no intervalo
-$[0,10]$. Os valores são igualmente espaçados, com uma observação para
-cada valor de $x$. A variável $y$ apresenta valores entre
-aproximadamente $-1.49$ e $2.66$.
+variáveis apresentam tipo numérico de ponto flutuante
+(\texttt{float64}). A variável $x$ possui 300 valores distintos,
+distribuídos no intervalo $[0,10]$, com uma observação para cada valor.
+Além disso, os valores de $x$ são igualmente espaçados ao longo do
+intervalo. A variável $y$ apresenta valores entre aproximadamente
+$-1,49$ e $2,66$.
 
 A Tabela~\ref{tab:dataset_summary} apresenta as principais estatísticas
-descritivas das variáveis.
+descritivas das duas variáveis.
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \small
 \caption{Estatísticas descritivas do conjunto de dados.}
@@ -83,14 +100,15 @@ Máximo & 10.000000 & 2.655266 \\
 \end{tabular}
 \end{table}
 
-A inspeção gráfica indica uma relação não linear entre $x$ e $y$, com
-comportamento oscilatório e dispersão das observações ao longo do domínio
-de $x$. A Figura~\ref{fig:dataset} apresenta a distribuição das
-observações.
+A inspeção gráfica indica que a relação entre $x$ e $y$ não é linear,
+apresentando comportamento oscilatório e dispersão das observações ao
+longo do domínio de $x$. Essa característica justifica a utilização de
+um modelo com capacidade de representar relações não lineares. A
+Figura~\ref{fig:dataset} apresenta a distribuição das observações.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.82\textwidth]{../figures/dataset.png}
+\includegraphics[width=0.82\textwidth]{figures/dataset.png}
 \caption{Distribuição das observações do conjunto de dados.}
 \label{fig:dataset}
 \end{figure}
@@ -98,62 +116,78 @@ observações.
 
 \subsection{Pré-processamento e Partição dos Dados}
 
-O dataset utilizado no projeto, denominado \texttt{dataset\_p1}, possui
-300 observações e duas variáveis numéricas, sendo \(x\) a variável de
-entrada e \(y\) a variável resposta. Foram consideradas duas estratégias
-de partição dos dados, ambas mantendo a proporção de 10\% para treinamento,
-10\% para validação e 80\% para teste, correspondendo a 30, 30 e 240
-observações, respectivamente.
+O \texttt{dataset\_p1} foi dividido segundo duas estratégias distintas,
+ambas mantendo a proporção de 10\% para treinamento, 10\% para
+validação e 80\% para teste. Como o conjunto possui 300 observações,
+cada estratégia resultou em 30 amostras para treinamento, 30 para
+validação e 240 para teste.
 
-A primeira estratégia consiste em uma partição aleatória, utilizando uma
-semente fixa igual a 42 para garantir a reprodutibilidade dos experimentos.
-A segunda consiste em uma partição sistemática baseada nas posições das
-observações. Nessa estratégia, foram utilizadas sequências de posições da
-forma
+A primeira estratégia consiste em uma partição aleatória, utilizando
+uma semente fixa igual a 42 para garantir a reprodutibilidade. A segunda
+consiste em uma partição sistemática baseada nos índices das
+observações.
 
-$$
-r,\ r+30,\ r+60,\ldots,r+270.
-$$
+Na partição sistemática, os índices foram classificados de acordo com
+o resto da divisão por 30. Os índices cujo resto pertence ao conjunto
+$\{0,10,20\}$ foram destinados ao treinamento, enquanto aqueles cujo
+resto pertence a $\{5,15,25\}$ foram destinados à validação. As demais
+observações foram destinadas ao teste.
 
-Três dessas sequências foram destinadas ao treinamento e três à validação,
-enquanto as demais observações foram destinadas ao teste. Essa construção
-mantém os três subconjuntos distribuídos ao longo do intervalo de valores
-de \(x\).
+Como os valores de $x$ são igualmente espaçados e a classificação é
+baseada nos índices, essa construção distribui as observações de
+treinamento e validação ao longo de todo o domínio de $x$. Assim, a
+partição sistemática não concentra as amostras de treinamento em uma
+única região do conjunto de dados.
 
-Para o pré-processamento, foi utilizado o método de padronização
+As duas estratégias foram mantidas ao longo de todo o experimento. Isso
+permite verificar se os efeitos das modificações introduzidas na MLP
+dependem da composição dos subconjuntos ou se permanecem semelhantes
+sob diferentes estratégias de particionamento.
+
+Para o pré-processamento, foi utilizado o método
 \texttt{StandardScaler}. Os parâmetros de transformação foram ajustados
-exclusivamente sobre os dados de treinamento:
+exclusivamente sobre os dados de treinamento, evitando a utilização de
+informações dos conjuntos de validação e teste nessa etapa. Para uma
+variável genérica $v$, a transformação é dada por
 
-$$
-z = \frac{x-\mu_{\mathrm{train}}}{\sigma_{\mathrm{train}}},
-$$
+\[
+z =
+\frac{v-\mu_{\mathrm{train}}}
+{\sigma_{\mathrm{train}}},
+\]
 
-onde \(\mu_{\mathrm{train}}\) e \(\sigma_{\mathrm{train}}\) representam,
-respectivamente, a média e o desvio-padrão calculados no conjunto de
-treinamento. Os mesmos parâmetros foram posteriormente utilizados para
-transformar os conjuntos de validação e teste, evitando vazamento de
-informação entre as partições.
+onde $\mu_{\mathrm{train}}$ e $\sigma_{\mathrm{train}}$ representam,
+respectivamente, a média e o desvio-padrão calculados sobre o conjunto
+de treinamento.
 
-O mesmo procedimento foi aplicado à variável de entrada \(x\) e à
-variável resposta \(y\). Durante a avaliação dos modelos, as previsões
-poderão ser transformadas novamente para a escala original de \(y\) por
-meio da transformação inversa do escalonamento.
+Os parâmetros obtidos no treinamento foram então utilizados para
+transformar os conjuntos de validação e teste. O procedimento foi
+aplicado separadamente à variável de entrada $x$ e à variável resposta
+$y$, utilizando-se um escalonador específico para cada variável. Dessa
+forma, as informações das partições de validação e teste não participam
+do ajuste dos parâmetros de padronização.
+
+Durante a avaliação final, as previsões foram convertidas novamente
+para a escala original de $y$ por meio da transformação inversa. Assim,
+as métricas utilizadas durante o treinamento e a seleção puderam ser
+calculadas no espaço padronizado, enquanto os resultados finais também
+puderam ser apresentados na unidade original da variável resposta.
 
 
 \subsection{Definição e Otimização Empírica do Modelo Baseline (Vanilla)}
 
-O modelo \textit{baseline} será uma rede MLP básica treinada
+O modelo \textit{baseline} foi definido como uma MLP básica treinada
 estritamente com \textbf{SGD padrão}, sem aceleradores adaptativos como
-Adam e sem termo de \textit{momentum}. Nesta etapa também não será
-utilizada regularização explícita por L1, L2 ou Dropout.
+Adam e sem termo de \textit{momentum}. Também não foi utilizada
+regularização explícita por L1, L2 ou Dropout.
 
-A busca empírica pela configuração do modelo envolverá a variação do
+A busca empírica pela configuração do modelo envolveu a variação do
 número de camadas, do número de neurônios por camada, da taxa de
 aprendizado inicial ($\eta$), da função de ativação e do tamanho do lote
-(\textit{batch size}). A seleção será realizada exclusivamente com base
-no menor erro de validação.
+(\textit{batch size}). O critério de seleção foi exclusivamente o menor
+MSE observado no conjunto de validação.
 
-A configuração de referência proposta para a MLP é:
+A configuração de referência proposta para a MLP foi:
 
 \[
 \text{Entrada}
@@ -170,10 +204,10 @@ A configuração de referência proposta para a MLP é:
 \]
 
 Os hiperparâmetros utilizados na busca são apresentados na
-Tabela~\ref{tab:baseline_hiper}. A busca foi realizada separadamente
-para as partições aleatória e sistemática.
+Tabela~\ref{tab:baseline_hiper}. A busca foi realizada
+separadamente para as partições aleatória e sistemática.
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \small
 \caption{Espaço de busca e configurações selecionadas para o modelo
@@ -182,10 +216,9 @@ Baseline (Vanilla).}
 \begin{tabularx}{\textwidth}{lXl}
 \toprule
 \textbf{Hiperparâmetro} &
-\textbf{Valores Explorados} &
-\textbf{Configuração Escolhida} \\
+\textbf{Valores explorados} &
+\textbf{Configuração escolhida} \\
 \midrule
-
 Topologia das camadas &
 $(32)$, $(64)$, $(128)$, $(32,32)$, $(64,64)$ e $(128,64)$ &
 $(128,64)$ para ambas \\
@@ -211,37 +244,37 @@ Erro Quadrático Médio (MSE) &
 MSELoss \\
 
 Critério de parada &
-Early Stopping, monitorando o erro de validação &
+\textit{Early Stopping}, monitorando o erro de validação &
 Patience = 20 épocas \\
 
 Semente aleatória &
 Semente fixa para reprodutibilidade &
 Seed = 42 \\
-
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Foram avaliadas 72 combinações de hiperparâmetros para cada estratégia
-de partição. A seleção foi realizada exclusivamente pelo menor MSE
-obtido no conjunto de validação, mantendo o conjunto de teste intocado.
+O espaço de busca correspondeu a 72 combinações de hiperparâmetros para
+cada estratégia de partição. A seleção foi realizada exclusivamente a
+partir do menor MSE obtido no conjunto de validação, mantendo o conjunto
+de teste intocado.
 
 Para a partição aleatória, a configuração selecionada foi composta por
 duas camadas ocultas, com 128 e 64 neurônios, respectivamente, ativação
 ReLU, taxa de aprendizado $0,01$ e tamanho de lote 16. O menor MSE de
 validação foi $0,818838$, obtido na época 564. O treinamento foi
-encerrado na época 584 após o critério de parada antecipada.
+encerrado na época 584 após o critério de \textit{Early Stopping}.
 
 Para a partição sistemática, a configuração selecionada também foi
-composta por duas camadas ocultas, com 128 e 64 neurônios, ativação
-ReLU e taxa de aprendizado $0,01$, mas com tamanho de lote 32. O menor
-MSE de validação foi $0,770725$, obtido na época 998. O treinamento
+composta por duas camadas ocultas, com 128 e 64 neurônios, ativação ReLU
+e taxa de aprendizado $0,01$, mas com tamanho de lote 32. O menor MSE de
+validação foi $0,770725$, obtido na época 998. Nesse caso, o treinamento
 atingiu o limite máximo de 1000 épocas.
 
 Os resultados resumidos da busca são apresentados na
 Tabela~\ref{tab:baseline_resultados}.
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \small
 \caption{Melhores resultados obtidos na busca do modelo Baseline
@@ -273,177 +306,952 @@ ReLU &
 \end{tabular}
 \end{table}
 
-Os erros de treinamento e validação ao longo das épocas serão analisados
-na etapa de dinâmica de treinamento.
+A configuração selecionada em cada partição foi então utilizada no
+treinamento do modelo baseline, cuja dinâmica de otimização foi
+analisada por meio das curvas de MSE e MAE.
 
 
 \section{Dinâmica de Treinamento e Convergência}
 
-A evolução das curvas de função de perda (MSE) e da métrica auxiliar
-MAE ao longo das épocas será monitorada para verificar a dinâmica de
-treinamento do SGD. Posteriormente, as curvas do modelo Baseline serão
-comparadas às obtidas pelos modelos modificados no estudo de ablação.
+O treinamento dos modelos baseline foi acompanhado por meio do MSE e
+do MAE, calculados ao final de cada época nos conjuntos de treinamento
+e validação. As duas estratégias de particionamento foram mantidas na
+análise.
 
-\begin{figure}[h]
+Além do menor valor do erro de validação, foi registrada a época em que
+esse valor ocorreu e o número total de épocas executadas. O estado do
+modelo correspondente ao menor MSE de validação foi preservado para as
+etapas posteriores.
+
+
+\subsection{Divisão aleatória}
+
+Para a divisão aleatória, o modelo selecionado na etapa de busca
+hiperparamétrica possui arquitetura $(128,64)$, ativação ReLU, taxa de
+aprendizado $0,01$, \textit{batch size} 16 e SGD sem momentum.
+
+\begin{figure}[H]
 \centering
-\fbox{
-\parbox[c][4cm][c]{0.82\textwidth}{
-\centering
-\textit{Figura a ser gerada durante os experimentos.}
-}
-}
-\caption{Curvas de treinamento e validação do modelo Baseline.}
-\label{fig:loss_baseline}
+\includegraphics[width=\textwidth]{figures/baseline_random_curves.png}
+\caption{Evolução do MSE e do MAE no treinamento e na validação para
+o modelo baseline com divisão aleatória.}
+\label{fig:baseline_random_curves}
 \end{figure}
 
-A análise da dinâmica de treinamento considerará:
+O menor MSE de validação foi $0,818838$, obtido na época 564. Com
+critério de parada antecipada de 20 épocas sem melhoria, o treinamento
+foi encerrado na época 584.
 
-\begin{itemize}
-    \item \textbf{Estabilidade do SGD:} comportamento das curvas de erro
-    e possíveis oscilações durante o treinamento;
+Ao final do treinamento, o MSE no conjunto de treinamento foi
+$0,651541$, enquanto o MSE de validação foi $0,873208$. Os respectivos
+MAEs foram $0,661778$ e $0,794267$. Esses valores estão na escala
+padronizada da variável resposta.
 
-    \item \textbf{Sobreajuste:} comparação entre os erros de treinamento
-    e validação, considerando o baixo número de amostras disponíveis
-    para treinamento;
+A diferença entre o menor MSE de validação e o valor registrado ao final
+do treinamento também mostra a utilidade do \textit{Early Stopping}:
+embora o treinamento tenha continuado após a época 564 para confirmar
+a ausência de novas melhorias, o modelo selecionado corresponde ao
+estado de menor erro de validação.
 
-    \item \textbf{Aceleração com Momentum:} comparação do comportamento
-    e do número de épocas necessárias para convergência entre o SGD
-    Vanilla e a versão com momentum.
-\end{itemize}
+
+\subsection{Divisão sistemática}
+
+Para a divisão sistemática, foi utilizada a mesma arquitetura
+$(128,64)$, com ativação ReLU, taxa de aprendizado $0,01$ e SGD sem
+momentum. O \textit{batch size} selecionado foi 32.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/baseline_systematic_curves.png}
+\caption{Evolução do MSE e do MAE no treinamento e na validação para
+o modelo baseline com divisão sistemática.}
+\label{fig:baseline_systematic_curves}
+\end{figure}
+
+Nesse caso, o menor MSE de validação foi $0,770725$, obtido na época
+998. Como o critério de parada antecipada não foi atingido antes do
+limite máximo, o treinamento foi executado por 1000 épocas.
+
+Ao final do treinamento, o MSE no conjunto de treinamento foi
+$0,670215$, enquanto o MAE foi $0,648229$. O MAE de validação
+correspondente ao melhor ponto foi $0,734492$.
+
+
+\subsection{Comparação da dinâmica de treinamento}
+
+Os dois particionamentos apresentaram dinâmicas distintas. Na divisão
+aleatória, o menor erro de validação ocorreu na época 564, seguido pela
+interrupção na época 584. Na divisão sistemática, o menor erro de
+validação ocorreu apenas na época 998, próxima ao limite máximo de
+treinamento.
+
+Essa diferença mostra que o número de épocas necessário para atingir o
+melhor ponto depende da composição dos dados utilizados no treinamento
+e na validação. Também evidencia que velocidade de convergência não
+deve ser usada como substituta de uma métrica de generalização: um
+modelo pode atingir um ponto estável rapidamente e ainda apresentar
+erro de validação elevado.
+
+As curvas de MSE e MAE constituem, portanto, a referência para avaliar
+as alterações introduzidas nas etapas de ablação.
 
 
 \section{Estudo de Ablação e Desempenho no Conjunto de Teste}
 
-O estudo de ablação será realizado mantendo-se a arquitetura selecionada
-para o modelo Baseline e modificando-se individualmente componentes
-específicos do treinamento. Dessa forma, será possível analisar o efeito
-de cada componente sobre o desempenho do modelo.
+Após a definição do modelo baseline, foram avaliadas quatro variações
+individuais e uma configuração combinada, seguindo o roteiro
+experimental: inclusão de momentum, regularização L2, regularização L1,
+Dropout e, por fim, combinação de componentes selecionados a partir dos
+experimentos individuais.
 
-Serão avaliadas, inicialmente, as seguintes variações:
+Em cada ablação, foram preservadas a arquitetura e as condições do
+baseline correspondente ao particionamento, alterando-se o componente
+específico sob investigação. Dessa forma, as diferenças observadas
+podem ser atribuídas ao mecanismo introduzido dentro das condições do
+experimento.
 
-\begin{enumerate}
-    \item \textbf{Baseline + Momentum:} inclusão de um fator de momentum
-    no otimizador SGD;
+O conjunto de teste, correspondente a 80\% das observações, permaneceu
+intocado durante todas as etapas de treinamento e seleção.
 
-    \item \textbf{Baseline + Regularização L2:} inclusão de penalização
-    quadrática dos pesos, controlada pelo parâmetro
-    $\lambda_{\mathrm{L2}}$;
+O principal critério de comparação foi o menor MSE observado no conjunto
+de validação. A MAE foi utilizada como métrica complementar. Os
+resultados desta etapa estão no espaço padronizado da variável resposta.
 
-    \item \textbf{Baseline + Regularização L1:} inclusão de penalização
-    pela norma $L_1$, controlada pelo parâmetro
-    $\lambda_{\mathrm{L1}}$;
 
-    \item \textbf{Baseline + Dropout:} desativação aleatória de neurônios
-    nas camadas ocultas;
+\subsection{Baseline + Momentum}
 
-    \item \textbf{Modelo combinado:} combinação dos componentes que
-    apresentarem resultados relevantes nos experimentos individuais.
-\end{enumerate}
+A primeira ablação consistiu na inclusão de momentum no otimizador SGD,
+utilizando $\beta=0,9$, sem alteração da arquitetura, taxa de
+aprendizado ou tamanho do lote.
 
-A avaliação final será realizada sobre as 240 observações do conjunto de
-teste, que não serão utilizadas durante o treinamento ou seleção dos
-hiperparâmetros.
-
-Os resultados serão apresentados utilizando as métricas MSE, RMSE, MAE
-e $R^2$, além do número de épocas até a convergência.
-
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \small
-\caption{Resultados do estudo de ablação no conjunto de teste.}
-\label{tab:ablation_metrics}
-\begin{tabularx}{\textwidth}{lccccc}
+\caption{Resultados da ablação com momentum.}
+\label{tab:momentum_ablation}
+\begin{tabular}{lrrrr}
 \toprule
-\textbf{Modelo / Variação} &
+\textbf{Split} &
+\textbf{MSE val.} &
+\textbf{MAE val.} &
+\textbf{Melhor época} &
+\textbf{Épocas} \\
+\midrule
+Random &
+0,701855 &
+0,689057 &
+152 &
+172 \\
+
+Systematic &
+0,920469 &
+0,769003 &
+7 &
+27 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+No particionamento aleatório, a introdução do momentum reduziu o MSE
+de validação de $0,818838$ para $0,701855$, uma redução de
+aproximadamente 14,29\%. A MAE também diminuiu, de $0,794267$ para
+$0,689057$. O menor erro de validação foi atingido na época 152.
+
+No particionamento sistemático, o comportamento foi diferente. O MSE
+de validação aumentou de $0,770725$ para $0,920469$, enquanto a MAE
+passou de $0,734492$ para $0,769003$. O melhor ponto ocorreu já na
+época 7.
+
+Portanto, dentro das configurações avaliadas, o efeito do momentum não
+foi uniforme entre os dois particionamentos. A alteração do mecanismo
+de atualização modificou tanto o desempenho de validação quanto a
+dinâmica de convergência.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/momentum_random_curves.png}
+\caption{Dinâmica de treinamento do modelo com momentum no
+particionamento aleatório.}
+\label{fig:momentum_random_curves}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/momentum_systematic_curves.png}
+\caption{Dinâmica de treinamento do modelo com momentum no
+particionamento sistemático.}
+\label{fig:momentum_systematic_curves}
+\end{figure}
+
+
+\subsection{Baseline + Regularização L2}
+
+A segunda ablação introduziu regularização L2 por meio do parâmetro
+\texttt{weight\_decay}, utilizando $\lambda_{L2}=10^{-4}$ e mantendo o
+restante da configuração igual ao baseline.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Resultados da ablação com regularização L2.}
+\label{tab:l2_ablation}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Split} &
+\textbf{MSE val.} &
+\textbf{MAE val.} &
+\textbf{Melhor época} &
+\textbf{Épocas} \\
+\midrule
+Random &
+0,804006 &
+0,747255 &
+623 &
+643 \\
+
+Systematic &
+0,770923 &
+0,734615 &
+999 &
+1000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+No particionamento aleatório, o L2 reduziu o MSE de validação de
+$0,818838$ para $0,804006$, aproximadamente 1,81\%. A MAE também foi
+reduzida de $0,794267$ para $0,747255$.
+
+No particionamento sistemático, a alteração foi muito pequena: o MSE
+passou de $0,770725$ para $0,770923$ e a MAE passou de $0,734492$ para
+$0,734615$.
+
+Assim, para o valor de $\lambda_{L2}$ utilizado, a regularização
+produziu uma alteração discreta no erro de validação. Como não foi
+realizada uma busca pelo melhor valor de $\lambda_{L2}$, não é possível
+generalizar esse comportamento para outras intensidades de
+regularização.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/l2_random_curves.png}
+\caption{Dinâmica de treinamento do modelo com regularização L2 no
+particionamento aleatório.}
+\label{fig:l2_random_curves}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/l2_systematic_curves.png}
+\caption{Dinâmica de treinamento do modelo com regularização L2 no
+particionamento sistemático.}
+\label{fig:l2_systematic_curves}
+\end{figure}
+
+
+\subsection{Baseline + Regularização L1}
+
+A terceira ablação utilizou penalização pela norma L1 dos pesos, com
+$\lambda_{L1}=10^{-4}$. A penalização foi aplicada aos pesos das
+camadas, sem incluir os \textit{biases}.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Resultados da ablação com regularização L1.}
+\label{tab:l1_ablation}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Split} &
+\textbf{MSE val.} &
+\textbf{MAE val.} &
+\textbf{Melhor época} &
+\textbf{Épocas} \\
+\midrule
+Random &
+0,805583 &
+0,747984 &
+623 &
+643 \\
+
+Systematic &
+0,771047 &
+0,734479 &
+1000 &
+1000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+No particionamento aleatório, o L1 reduziu o MSE de validação de
+$0,818838$ para $0,805583$, aproximadamente 1,62\%. A MAE passou de
+$0,794267$ para $0,747984$.
+
+No particionamento sistemático, o MSE foi $0,771047$, muito próximo ao
+baseline de $0,770725$. A MAE foi $0,734479$.
+
+Os resultados mostram que, com $\lambda_{L1}=10^{-4}$, a penalização
+produziu alterações pequenas no erro de validação. A comparação com L2
+deve ser interpretada dentro desse mesmo valor de regularização, pois
+os hiperparâmetros não foram submetidos a uma nova busca para cada
+método.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/l1_random_curves.png}
+\caption{Dinâmica de treinamento do modelo com regularização L1 no
+particionamento aleatório.}
+\label{fig:l1_random_curves}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/l1_systematic_curves.png}
+\caption{Dinâmica de treinamento do modelo com regularização L1 no
+particionamento sistemático.}
+\label{fig:l1_systematic_curves}
+\end{figure}
+
+
+\subsection{Baseline + Dropout}
+
+A quarta ablação consistiu na introdução de camadas Dropout com
+probabilidade $p=0,2$ após as camadas ocultas.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Resultados da ablação com Dropout.}
+\label{tab:dropout_ablation}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Split} &
+\textbf{MSE val.} &
+\textbf{MAE val.} &
+\textbf{Melhor época} &
+\textbf{Épocas} \\
+\midrule
+Random &
+1,020800 &
+0,824734 &
+39 &
+59 \\
+
+Systematic &
+0,923539 &
+0,769643 &
+28 &
+48 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+O Dropout produziu aumento do MSE de validação nos dois
+particionamentos. No split aleatório, o MSE aumentou de $0,818838$
+para $1,020800$, aproximadamente 24,66\%. No split sistemático, o
+aumento foi de $0,770725$ para $0,923539$, aproximadamente 19,83\%.
+
+Os melhores pontos de validação ocorreram nas épocas 39 e 28,
+respectivamente. Portanto, embora o melhor ponto tenha ocorrido
+precocemente, o erro associado a esse ponto foi maior que o observado
+no baseline.
+
+Uma possível interpretação é que, para a quantidade reduzida de
+amostras de treinamento deste experimento, o Dropout com $p=0,2$ tenha
+introduzido uma regularização excessiva para a configuração utilizada.
+Essa hipótese é compatível com os resultados observados, mas é
+específica do valor de $p$ testado e não permite concluir sobre outras
+taxas de Dropout.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/dropout_random_curves.png}
+\caption{Dinâmica de treinamento do modelo com Dropout no
+particionamento aleatório.}
+\label{fig:dropout_random_curves}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/dropout_systematic_curves.png}
+\caption{Dinâmica de treinamento do modelo com Dropout no
+particionamento sistemático.}
+\label{fig:dropout_systematic_curves}
+\end{figure}
+
+
+\subsection{Modelo Combinado}
+
+Por fim, foi avaliada a combinação de momentum e regularização L2,
+utilizando $\beta=0,9$ e $\lambda_{L2}=10^{-4}$. A combinação foi
+introduzida para verificar se os efeitos observados individualmente
+poderiam ser mantidos ou ampliados quando os dois mecanismos fossem
+utilizados simultaneamente.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Resultados do modelo combinado.}
+\label{tab:combined_ablation}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Split} &
+\textbf{MSE val.} &
+\textbf{MAE val.} &
+\textbf{Melhor época} &
+\textbf{Épocas} \\
+\midrule
+Random &
+0,723593 &
+0,709413 &
+128 &
+148 \\
+
+Systematic &
+0,920469 &
+0,769004 &
+7 &
+27 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+No particionamento aleatório, a combinação apresentou MSE de validação
+$0,723593$, inferior ao baseline ($0,818838$), mas superior ao
+resultado obtido com momentum isoladamente ($0,701855$). Dessa forma,
+dentro desta configuração, a adição do L2 não produziu ganho adicional
+em relação ao momentum.
+
+No particionamento sistemático, o modelo combinado apresentou MSE de
+validação $0,920469$, coincidindo com o valor observado para o modelo
+com momentum isoladamente e permanecendo acima do baseline
+($0,770725$).
+
+Esses resultados mostram que os efeitos dos componentes não foram
+aditivos de maneira direta. A combinação precisou ser tratada como uma
+nova configuração experimental, e seu desempenho foi determinado pelo
+erro de validação efetivamente observado.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/combined_random_curves.png}
+\caption{Dinâmica de treinamento do modelo combinado no particionamento
+aleatório.}
+\label{fig:combined_random_curves}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/combined_systematic_curves.png}
+\caption{Dinâmica de treinamento do modelo combinado no particionamento
+sistemático.}
+\label{fig:combined_systematic_curves}
+\end{figure}
+
+
+\subsection{Comparação Consolidada das Ablações}
+
+A Tabela~\ref{tab:ablation_comparison} consolida os resultados de
+validação de todas as configurações avaliadas.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Comparação consolidada das configurações avaliadas no conjunto
+de validação.}
+\label{tab:ablation_comparison}
+\begin{tabular}{llrr}
+\toprule
+\textbf{Split} &
+\textbf{Configuração} &
+\textbf{MSE val.} &
+\textbf{MAE val.} \\
+\midrule
+Random & Baseline & 0,818838 & 0,794267 \\
+Random & Momentum & 0,701855 & 0,689057 \\
+Random & L2 & 0,804006 & 0,747255 \\
+Random & L1 & 0,805583 & 0,747984 \\
+Random & Dropout & 1,020800 & 0,824734 \\
+Random & Momentum + L2 & 0,723593 & 0,709413 \\
+\midrule
+Systematic & Baseline & 0,770725 & 0,734492 \\
+Systematic & Momentum & 0,920469 & 0,769003 \\
+Systematic & L2 & 0,770923 & 0,734615 \\
+Systematic & L1 & 0,771047 & 0,734479 \\
+Systematic & Dropout & 0,923539 & 0,769643 \\
+Systematic & Momentum + L2 & 0,920469 & 0,769004 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A seleção das configurações destinadas à avaliação final foi realizada
+exclusivamente pelo critério definido de menor MSE de validação. Para
+o particionamento aleatório, a configuração selecionada foi o modelo
+baseline com momentum, com MSE de validação $0,701855$. Para o
+particionamento sistemático, a configuração selecionada foi o modelo
+baseline, com MSE de validação $0,770725$.
+
+Essa seleção foi concluída antes da utilização do conjunto de teste,
+que permaneceu separado das etapas de treinamento e escolha das
+configurações.
+
+
+\subsection{Avaliação Final no Conjunto de Teste}
+
+Após a seleção baseada exclusivamente no conjunto de validação, cada
+particionamento teve uma configuração definida para a avaliação final.
+No particionamento aleatório, foi utilizado o modelo baseline com
+momentum ($\beta=0,9$), enquanto no particionamento sistemático foi
+utilizado o modelo baseline.
+
+O conjunto de teste, composto por 240 observações em cada
+particionamento, não foi utilizado durante o treinamento ou a seleção
+dos modelos. Os resultados apresentados na
+Tabela~\ref{tab:final_test} estão na escala original da variável
+resposta.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Desempenho final no conjunto de teste, no espaço original da
+variável resposta.}
+\label{tab:final_test}
+\begin{tabular}{llrrrr}
+\toprule
+\textbf{Split} &
+\textbf{Modelo} &
 \textbf{MSE} &
 \textbf{RMSE} &
 \textbf{MAE} &
-\textbf{$R^2$} &
-\textbf{Épocas} \\
+\textbf{$R^2$} \\
 \midrule
+Random &
+Momentum &
+0,447147 &
+0,668690 &
+0,556056 &
+0,112666 \\
 
-Baseline Vanilla & -- & -- & -- & -- & -- \\
-
-Baseline + Momentum & -- & -- & -- & -- & -- \\
-
-Baseline + L2 & -- & -- & -- & -- & -- \\
-
-Baseline + L1 & -- & -- & -- & -- & -- \\
-
-Baseline + Dropout & -- & -- & -- & -- & -- \\
-
-Modelo combinado & -- & -- & -- & -- & -- \\
-
+Systematic &
+Baseline &
+0,419493 &
+0,647683 &
+0,525382 &
+0,190934 \\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \end{table}
 
+No particionamento aleatório, o modelo selecionado com momentum
+apresentou MSE $0,447147$, RMSE $0,668690$, MAE $0,556056$ e
+$R^2=0,112666$.
 
-\begin{figure}[h]
+No particionamento sistemático, o modelo baseline apresentou MSE
+$0,419493$, RMSE $0,647683$, MAE $0,525382$ e
+$R^2=0,190934$.
+
+As mesmas métricas calculadas no espaço padronizado foram:
+
+\begin{table}[H]
 \centering
-\begin{minipage}{0.48\textwidth}
+\small
+\caption{Desempenho final no conjunto de teste no espaço padronizado.}
+\label{tab:final_test_scaled}
+\begin{tabular}{llrrrr}
+\toprule
+\textbf{Split} &
+\textbf{Modelo} &
+\textbf{MSE} &
+\textbf{RMSE} &
+\textbf{MAE} &
+\textbf{$R^2$} \\
+\midrule
+Random &
+Momentum &
+0,746377 &
+0,863931 &
+0,718410 &
+0,112666 \\
+
+Systematic &
+Baseline &
+0,725588 &
+0,851815 &
+0,690969 &
+0,190934 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+O valor de $R^2$ não é alterado pela padronização da variável resposta,
+enquanto MSE, RMSE e MAE dependem da escala utilizada. Por esse motivo,
+os resultados finais são apresentados prioritariamente na escala
+original, mantendo-se os valores padronizados para comparação com as
+métricas utilizadas durante o treinamento.
+
+A comparação entre validação e teste deve ser realizada separadamente
+em cada particionamento, pois os conjuntos avaliados são distintos. No
+split aleatório, o MSE passou de $0,701855$ na validação para
+$0,746377$ no teste, um aumento de aproximadamente 6,34\%. No split
+sistemático, o MSE passou de $0,770725$ na validação para $0,725588$ no
+teste, uma redução de aproximadamente 5,86\%.
+
+Essas diferenças não representam uma alteração do modelo entre as duas
+etapas, mas sim uma diferença entre o desempenho observado em conjuntos
+distintos. O conjunto de teste foi utilizado apenas após a seleção das
+configurações, preservando sua função de avaliação final.
+
+
+\subsection{Análise de Paridade e Resíduos}
+
+Para complementar as métricas agregadas, foram analisadas as previsões
+obtidas no conjunto de teste por meio de gráficos de paridade e de
+resíduos.
+
+Os gráficos de paridade comparam os valores reais e preditos, tendo
+como referência a reta ideal
+
+\[
+\hat{y}=y.
+\]
+
+\begin{figure}[H]
 \centering
-\fbox{
-\parbox[c][3.8cm][c]{\linewidth}{
+\includegraphics[width=0.80\textwidth]{figures/parity_random.png}
+\caption{Gráfico de paridade do modelo selecionado no particionamento
+aleatório.}
+\label{fig:parity_random}
+\end{figure}
+
+\begin{figure}[H]
 \centering
-\textit{Parity plot a ser gerado}
-}
-}
-\caption{Valores reais e preditos no conjunto de teste.}
-\label{fig:parity}
-\end{minipage}
-\hfill
-\begin{minipage}{0.48\textwidth}
+\includegraphics[width=0.80\textwidth]{figures/parity_systematic.png}
+\caption{Gráfico de paridade do modelo selecionado no particionamento
+sistemático.}
+\label{fig:parity_systematic}
+\end{figure}
+
+A análise dos resíduos foi realizada a partir de
+
+\[
+e_i=y_i-\hat{y}_i.
+\]
+
+As principais estatísticas descritivas dos resíduos no conjunto de
+teste são apresentadas na Tabela~\ref{tab:residual_summary}.
+
+\begin{table}[H]
 \centering
-\fbox{
-\parbox[c][3.8cm][c]{\linewidth}{
+\scriptsize
+\caption{Resumo estatístico dos resíduos no conjunto de teste.}
+\label{tab:residual_summary}
+\begin{tabular}{lrrrrrrrrrr}
+\toprule
+\textbf{Split} &
+\textbf{Média} &
+\textbf{Mediana} &
+\textbf{DP} &
+\textbf{$Q_1$} &
+\textbf{$Q_3$} &
+\textbf{IQR} &
+\textbf{Mín.} &
+\textbf{Máx.} &
+\textbf{Skew.} &
+\textbf{Curt.} \\
+\midrule
+Random
+& -0,091612
+& -0,129840
+& 0,662385
+& -0,578163
+& 0,445578
+& 1,023741
+& -1,811030
+& 2,277711
+& 0,147780
+& -0,153236 \\
+
+Systematic
+& 0,069106
+& -0,004271
+& 0,643986
+& -0,382244
+& 0,522215
+& 0,904458
+& -1,780099
+& 1,986360
+& 0,184936
+& -0,217566 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+No particionamento aleatório, a média dos resíduos foi $-0,091612$ e a
+mediana foi $-0,129840$. Como $e=y-\hat{y}$, resíduos negativos
+correspondem a previsões superiores aos valores observados. A
+combinação de média e mediana negativas indica uma pequena tendência
+nessa direção.
+
+No particionamento sistemático, a média foi $0,069106$, enquanto a
+mediana foi $-0,004271$. A mediana permanece muito próxima de zero,
+enquanto a média positiva mostra a influência de parte dos resíduos
+positivos sobre a distribuição.
+
+A dispersão central dos resíduos foi semelhante nos dois
+particionamentos. O intervalo interquartil foi $1,023741$ no random e
+$0,904458$ no systematic. Os valores extremos variaram de
+$-1,811030$ a $2,277711$ no random e de $-1,780099$ a $1,986360$ no
+systematic.
+
+As medidas de assimetria foram pequenas e positivas: $0,147780$ no
+random e $0,184936$ no systematic. Dessa forma, há uma assimetria
+positiva leve, sem evidência de assimetria acentuada. A curtose em
+excesso foi $-0,153236$ no random e $-0,217566$ no systematic. Esses
+valores descrevem a forma da distribuição dos resíduos, mas não
+constituem, isoladamente, um teste de normalidade.
+
+A relação entre erro médio e erro quadrático pode ser expressa por
+
+\[
+\operatorname{MSE}
+=
+\operatorname{Var}(e)
++
+[\operatorname{E}(e)]^2.
+\]
+
+Para o particionamento aleatório, o termo associado à média dos
+resíduos corresponde a aproximadamente 1,88\% do MSE. No
+particionamento sistemático, essa parcela corresponde a aproximadamente
+1,14\%. Portanto, a maior parte do erro quadrático observado está
+associada à dispersão dos resíduos, e não ao seu deslocamento médio.
+
+Os resíduos em função de $x$ são apresentados nas
+Figuras~\ref{fig:residual_x_random} e
+\ref{fig:residual_x_systematic}. Essa representação é particularmente
+relevante neste problema, pois $x$ é a única variável de entrada e a
+relação observada entre $x$ e $y$ é não linear.
+
+\begin{figure}[H]
 \centering
-\textit{Gráfico de resíduos a ser gerado}
-}
-}
-\caption{Resíduos do modelo no conjunto de teste.}
-\label{fig:residuals}
-\end{minipage}
+\includegraphics[width=0.90\textwidth]{figures/residuals_x_random.png}
+\caption{Resíduos em função de $x$ no particionamento aleatório.}
+\label{fig:residual_x_random}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/residuals_x_systematic.png}
+\caption{Resíduos em função de $x$ no particionamento sistemático.}
+\label{fig:residual_x_systematic}
+\end{figure}
+
+Finalmente, os histogramas dos resíduos são apresentados nas
+Figuras~\ref{fig:residual_hist_random} e
+\ref{fig:residual_hist_systematic}. Essas representações complementam
+as estatísticas descritivas ao permitir a inspeção visual da
+concentração dos erros e de suas caudas.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/residual_hist_random.png}
+\caption{Distribuição dos resíduos no particionamento aleatório.}
+\label{fig:residual_hist_random}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/residual_hist_systematic.png}
+\caption{Distribuição dos resíduos no particionamento sistemático.}
+\label{fig:residual_hist_systematic}
 \end{figure}
 
 
 \section{Discussão e Lições Aprendidas}
 
-A discussão será elaborada a partir dos resultados experimentais
-obtidos, considerando especialmente o efeito do regime de poucos dados
-sobre o treinamento e a generalização da MLP.
+Os experimentos mostraram que, no regime utilizado, o desempenho da
+MLP depende não apenas da arquitetura escolhida, mas também da
+composição das partições e do mecanismo de treinamento empregado.
 
-Serão analisados os seguintes aspectos:
+O \texttt{dataset\_p1} possui 300 observações, mas somente 30 foram
+utilizadas para treinamento em cada estratégia. Assim, o modelo foi
+ajustado com uma quantidade reduzida de exemplos, enquanto 240
+observações permaneceram separadas para a avaliação final.
 
-\begin{itemize}
+\subsection{Efeito do Regime de Baixa Disponibilidade de Dados}
 
-    \item \textbf{Impacto do SGD Vanilla no regime de poucos dados:}
-    relação entre a quantidade reduzida de amostras de treinamento,
-    sobreajuste e desempenho de generalização;
+A utilização de apenas 10\% das observações para treinamento torna a
+estimativa da relação entre $x$ e $y$ dependente da composição das
+amostras utilizadas para ajuste e validação. A diferença entre os dois
+particionamentos evidencia esse efeito.
 
-    \item \textbf{Efeito do Momentum:} alterações na velocidade e na
-    estabilidade da convergência em relação ao SGD sem momentum;
+No particionamento aleatório, o uso de momentum reduziu o MSE de
+validação em aproximadamente 14,29\%, enquanto L1 e L2 produziram
+reduções menores, de aproximadamente 1,62\% e 1,81\%. O Dropout com
+$p=0,2$, por sua vez, aumentou o MSE em aproximadamente 24,66\%.
 
-    \item \textbf{Regularização L1 e L2:} comparação dos efeitos das duas
-    formas de penalização sobre os pesos e sobre o desempenho de
-    generalização;
+No particionamento sistemático, o baseline apresentou MSE de validação
+$0,770725$. L1 e L2 permaneceram muito próximos desse valor, enquanto
+momentum e Dropout elevaram o MSE para $0,920469$ e $0,923539$,
+respectivamente.
 
-    \item \textbf{Dropout:} análise de seu efeito sobre o erro de
-    treinamento e o desempenho no conjunto de teste;
+A diferença entre esses comportamentos mostra que os resultados de uma
+ablação não podem ser dissociados da forma como os dados foram
+particionados. Em particular, utilizar apenas uma divisão poderia
+atribuir a uma técnica um efeito que não se reproduz sob uma
+partição diferente.
 
-    \item \textbf{Análise de resíduos:} identificação de possíveis
-    padrões, assimetrias ou regiões do domínio nas quais o modelo
-    apresenta maior erro;
 
-    \item \textbf{Limitações experimentais:} influência do reduzido
-    número de amostras de treinamento e das escolhas realizadas durante
-    a busca de hiperparâmetros.
+\subsection{Comportamento do SGD e Efeito do Momentum}
 
-\end{itemize}
+O baseline foi treinado com SGD sem momentum. No particionamento
+aleatório, a introdução de $\beta=0,9$ reduziu o MSE de validação de
+$0,818838$ para $0,701855$ e deslocou a melhor época de 564 para 152.
 
-As conclusões serão preenchidas após a realização dos experimentos,
-evitando inferências sobre o comportamento dos modelos antes da
-obtenção dos resultados.
+No particionamento sistemático, o mesmo mecanismo aumentou o MSE de
+$0,770725$ para $0,920469$, enquanto o melhor ponto ocorreu na época 7.
 
+Assim, o experimento evidencia que alterar a dinâmica do otimizador
+pode produzir efeitos dependentes da distribuição das observações entre
+treinamento e validação. A diferença também reforça que a época de
+convergência não deve ser interpretada isoladamente: no systematic, o
+modelo com momentum atingiu rapidamente seu melhor ponto, mas esse
+ponto apresentou erro de validação superior ao baseline.
+
+
+\subsection{Comparação entre L1 e L2}
+
+As regularizações L1 e L2 foram avaliadas com $\lambda=10^{-4}$. No
+particionamento aleatório, os MSEs foram $0,805583$ para L1 e
+$0,804006$ para L2, ambos abaixo do baseline de $0,818838$.
+
+No particionamento sistemático, L1 apresentou MSE $0,771047$ e L2
+apresentou $0,770923$, enquanto o baseline apresentou $0,770725$.
+
+Os resultados indicam que, para a intensidade de regularização
+utilizada, os efeitos de L1 e L2 sobre o MSE de validação foram
+pequenos. Não foi realizada uma busca pelos valores de $\lambda$ para
+essas regularizações. Portanto, a comparação diz respeito às
+configurações testadas e não à capacidade máxima de cada método sob uma
+otimização específica de seu hiperparâmetro.
+
+
+\subsection{Efeito do Dropout}
+
+O Dropout com $p=0,2$ aumentou o erro de validação nos dois
+particionamentos. O MSE passou de $0,818838$ para $1,020800$ no random
+e de $0,770725$ para $0,923539$ no systematic.
+
+Os melhores pontos ocorreram nas épocas 39 e 28, respectivamente.
+Portanto, nesse experimento, o treinamento atingiu o melhor ponto
+rapidamente, mas o ponto obtido apresentou erro de validação maior que
+o baseline.
+
+Uma interpretação possível é que a aleatoriedade introduzida pelo
+Dropout tenha representado uma regularização excessiva diante das
+apenas 30 amostras disponíveis para treinamento. Essa interpretação é
+compatível com os resultados, mas permanece limitada ao valor
+$p=0,2$ utilizado.
+
+
+\subsection{Interação entre Momentum e L2}
+
+A combinação entre momentum e L2 apresentou MSE de validação $0,723593$
+no random e $0,920469$ no systematic.
+
+No random, a combinação permaneceu melhor que o baseline, mas não
+superou o momentum isolado. No systematic, o resultado coincidiu com
+o experimento de momentum e permaneceu acima do baseline.
+
+Portanto, nesta configuração, os efeitos individuais não foram
+simplesmente aditivos. A regularização L2 não acrescentou uma redução
+adicional do erro ao momentum e, em nenhum dos dois particionamentos,
+a configuração combinada superou simultaneamente todas as configurações
+individuais.
+
+
+\subsection{Generalização para o Conjunto de Teste}
+
+A seleção dos modelos foi realizada exclusivamente com base no conjunto
+de validação. O conjunto de teste permaneceu reservado para a avaliação
+final, evitando que seu desempenho influenciasse a escolha da
+configuração.
+
+No particionamento aleatório, o modelo selecionado com momentum
+apresentou MSE de teste $0,447147$, RMSE $0,668690$, MAE $0,556056$ e
+$R^2=0,112666$.
+
+No particionamento sistemático, o modelo baseline apresentou MSE de
+teste $0,419493$, RMSE $0,647683$, MAE $0,525382$ e
+$R^2=0,190934$.
+
+No random, o MSE de teste foi aproximadamente 6,34\% maior que o MSE de
+validação. No systematic, o MSE de teste foi aproximadamente 5,86\%
+menor que o MSE de validação.
+
+Essas diferenças não permitem inferir, isoladamente, que um conjunto
+seja mais difícil que o outro ou que o modelo tenha mudado de
+comportamento entre as etapas. Elas são resultado da avaliação em
+amostras distintas e devem ser interpretadas dentro de cada
+particionamento.
+
+
+\subsection{Análise dos Resíduos}
+
+Os resíduos apresentaram dispersão semelhante nos dois modelos
+selecionados. O desvio-padrão foi $0,662385$ no random e $0,643986$ no
+systematic.
+
+No random, a média e a mediana foram negativas, respectivamente
+$-0,091612$ e $-0,129840$, indicando uma pequena tendência média de
+superestimação. No systematic, a média foi $0,069106$ e a mediana foi
+$-0,004271$, o que indica que a posição central da distribuição ficou
+muito próxima de zero, apesar da influência de resíduos positivos sobre
+a média.
+
+A skewness positiva e de pequena magnitude nos dois particionamentos é
+compatível com uma assimetria leve. Os valores extremos também mostram
+que existem observações com erros significativamente maiores que a
+magnitude típica dos resíduos. Como o MSE atribui peso quadrático a
+esses desvios, algumas poucas observações podem contribuir de maneira
+relevante para o erro agregado.
+
+A decomposição do MSE mostrou ainda que apenas uma pequena parcela do
+erro quadrático está associada ao deslocamento médio dos resíduos.
+Portanto, a principal contribuição para o erro observado está
+associada à variabilidade dos desvios individuais.
+
+A análise conjunta das métricas e dos gráficos de resíduos é, assim,
+mais informativa que qualquer uma dessas medidas isoladamente.
+
+
+\subsection{Lições Aprendidas}
+
+O experimento evidenciou a importância de separar as etapas de
+otimização, seleção e avaliação final. O conjunto de teste não foi
+utilizado para selecionar a arquitetura ou os componentes do modelo,
+sendo reservado para a estimativa final de generalização.
+
+A busca inicial mostrou que a configuração do baseline também depende
+da estratégia de particionamento, embora ambas tenham selecionado a
+mesma arquitetura e ativação. Ao longo das ablações, os efeitos das
+técnicas foram diferentes entre as partições: momentum apresentou
+redução importante do MSE no random, mas aumento no systematic; L1 e L2
+produziram alterações pequenas; e Dropout com $p=0,2$ aumentou o erro
+nos dois casos.
+
+A combinação entre momentum e L2 também não apresentou ganho adicional
+em relação ao momentum isolado no random e não superou o baseline no
+systematic. Isso mostra que a combinação de mecanismos de otimização e
+regularização precisa ser verificada experimentalmente, não sendo
+suficiente supor que seus efeitos serão cumulativos.
+
+Por fim, a análise do conjunto de teste mostrou que a avaliação por
+MSE, RMSE, MAE e $R^2$ deve ser complementada pela inspeção das curvas
+de treinamento, dos gráficos de paridade e dos resíduos. Essa análise
+conjunta permite distinguir o comportamento de otimização da capacidade
+de generalização e explicitar as limitações do experimento, sobretudo
+diante da quantidade reduzida de observações utilizadas para
+treinamento.
 
 \end{document}

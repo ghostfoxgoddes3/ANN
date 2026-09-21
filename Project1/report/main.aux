@@ -20,23 +20,88 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Inspeção e Caracterização dos Dados}{1}{subsection.1.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Estatísticas descritivas do conjunto de dados.}}{1}{table.1}\protected@file@percent }
 \newlabel{tab:dataset_summary}{{1}{1}{Estatísticas descritivas do conjunto de dados}{table.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Pré-processamento e Partição dos Dados}{1}{subsection.1.2}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Distribuição das observações do conjunto de dados.}}{2}{figure.1}\protected@file@percent }
 \newlabel{fig:dataset}{{1}{2}{Distribuição das observações do conjunto de dados}{figure.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Definição e Otimização Empírica do Modelo Baseline (Vanilla)}{2}{subsection.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Pré-processamento e Partição dos Dados}{2}{subsection.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Definição e Otimização Empírica do Modelo Baseline (Vanilla)}{3}{subsection.1.3}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Espaço de busca e configurações selecionadas para o modelo Baseline (Vanilla).}}{3}{table.2}\protected@file@percent }
 \newlabel{tab:baseline_hiper}{{2}{3}{Espaço de busca e configurações selecionadas para o modelo Baseline (Vanilla)}{table.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Melhores resultados obtidos na busca do modelo Baseline (Vanilla).}}{3}{table.3}\protected@file@percent }
-\newlabel{tab:baseline_resultados}{{3}{3}{Melhores resultados obtidos na busca do modelo Baseline (Vanilla)}{table.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Dinâmica de Treinamento e Convergência}{3}{section.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Curvas de treinamento e validação do modelo Baseline.}}{3}{figure.2}\protected@file@percent }
-\newlabel{fig:loss_baseline}{{2}{3}{Curvas de treinamento e validação do modelo Baseline}{figure.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Estudo de Ablação e Desempenho no Conjunto de Teste}{4}{section.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Resultados do estudo de ablação no conjunto de teste.}}{4}{table.4}\protected@file@percent }
-\newlabel{tab:ablation_metrics}{{4}{4}{Resultados do estudo de ablação no conjunto de teste}{table.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Valores reais e preditos no conjunto de teste.}}{4}{figure.3}\protected@file@percent }
-\newlabel{fig:parity}{{3}{4}{Valores reais e preditos no conjunto de teste}{figure.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Resíduos do modelo no conjunto de teste.}}{4}{figure.4}\protected@file@percent }
-\newlabel{fig:residuals}{{4}{4}{Resíduos do modelo no conjunto de teste}{figure.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Discussão e Lições Aprendidas}{4}{section.4}\protected@file@percent }
-\gdef \@abspage@last{5}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Melhores resultados obtidos na busca do modelo Baseline (Vanilla).}}{4}{table.3}\protected@file@percent }
+\newlabel{tab:baseline_resultados}{{3}{4}{Melhores resultados obtidos na busca do modelo Baseline (Vanilla)}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Dinâmica de Treinamento e Convergência}{4}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Divisão aleatória}{4}{subsection.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Evolução do MSE e do MAE no treinamento e na validação para o modelo baseline com divisão aleatória.}}{5}{figure.2}\protected@file@percent }
+\newlabel{fig:baseline_random_curves}{{2}{5}{Evolução do MSE e do MAE no treinamento e na validação para o modelo baseline com divisão aleatória}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Divisão sistemática}{5}{subsection.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Evolução do MSE e do MAE no treinamento e na validação para o modelo baseline com divisão sistemática.}}{6}{figure.3}\protected@file@percent }
+\newlabel{fig:baseline_systematic_curves}{{3}{6}{Evolução do MSE e do MAE no treinamento e na validação para o modelo baseline com divisão sistemática}{figure.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Comparação da dinâmica de treinamento}{6}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Estudo de Ablação e Desempenho no Conjunto de Teste}{7}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Baseline + Momentum}{7}{subsection.3.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Resultados da ablação com momentum.}}{7}{table.4}\protected@file@percent }
+\newlabel{tab:momentum_ablation}{{4}{7}{Resultados da ablação com momentum}{table.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Dinâmica de treinamento do modelo com momentum no particionamento aleatório.}}{8}{figure.4}\protected@file@percent }
+\newlabel{fig:momentum_random_curves}{{4}{8}{Dinâmica de treinamento do modelo com momentum no particionamento aleatório}{figure.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Dinâmica de treinamento do modelo com momentum no particionamento sistemático.}}{9}{figure.5}\protected@file@percent }
+\newlabel{fig:momentum_systematic_curves}{{5}{9}{Dinâmica de treinamento do modelo com momentum no particionamento sistemático}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Baseline + Regularização L2}{9}{subsection.3.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Resultados da ablação com regularização L2.}}{9}{table.5}\protected@file@percent }
+\newlabel{tab:l2_ablation}{{5}{9}{Resultados da ablação com regularização L2}{table.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Dinâmica de treinamento do modelo com regularização L2 no particionamento aleatório.}}{10}{figure.6}\protected@file@percent }
+\newlabel{fig:l2_random_curves}{{6}{10}{Dinâmica de treinamento do modelo com regularização L2 no particionamento aleatório}{figure.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Dinâmica de treinamento do modelo com regularização L2 no particionamento sistemático.}}{11}{figure.7}\protected@file@percent }
+\newlabel{fig:l2_systematic_curves}{{7}{11}{Dinâmica de treinamento do modelo com regularização L2 no particionamento sistemático}{figure.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Baseline + Regularização L1}{11}{subsection.3.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Resultados da ablação com regularização L1.}}{11}{table.6}\protected@file@percent }
+\newlabel{tab:l1_ablation}{{6}{11}{Resultados da ablação com regularização L1}{table.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Dinâmica de treinamento do modelo com regularização L1 no particionamento aleatório.}}{12}{figure.8}\protected@file@percent }
+\newlabel{fig:l1_random_curves}{{8}{12}{Dinâmica de treinamento do modelo com regularização L1 no particionamento aleatório}{figure.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Dinâmica de treinamento do modelo com regularização L1 no particionamento sistemático.}}{13}{figure.9}\protected@file@percent }
+\newlabel{fig:l1_systematic_curves}{{9}{13}{Dinâmica de treinamento do modelo com regularização L1 no particionamento sistemático}{figure.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Baseline + Dropout}{13}{subsection.3.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Resultados da ablação com Dropout.}}{13}{table.7}\protected@file@percent }
+\newlabel{tab:dropout_ablation}{{7}{13}{Resultados da ablação com Dropout}{table.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Dinâmica de treinamento do modelo com Dropout no particionamento aleatório.}}{14}{figure.10}\protected@file@percent }
+\newlabel{fig:dropout_random_curves}{{10}{14}{Dinâmica de treinamento do modelo com Dropout no particionamento aleatório}{figure.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Dinâmica de treinamento do modelo com Dropout no particionamento sistemático.}}{15}{figure.11}\protected@file@percent }
+\newlabel{fig:dropout_systematic_curves}{{11}{15}{Dinâmica de treinamento do modelo com Dropout no particionamento sistemático}{figure.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Modelo Combinado}{15}{subsection.3.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Resultados do modelo combinado.}}{15}{table.8}\protected@file@percent }
+\newlabel{tab:combined_ablation}{{8}{15}{Resultados do modelo combinado}{table.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Dinâmica de treinamento do modelo combinado no particionamento aleatório.}}{16}{figure.12}\protected@file@percent }
+\newlabel{fig:combined_random_curves}{{12}{16}{Dinâmica de treinamento do modelo combinado no particionamento aleatório}{figure.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Dinâmica de treinamento do modelo combinado no particionamento sistemático.}}{17}{figure.13}\protected@file@percent }
+\newlabel{fig:combined_systematic_curves}{{13}{17}{Dinâmica de treinamento do modelo combinado no particionamento sistemático}{figure.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Comparação Consolidada das Ablações}{17}{subsection.3.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Comparação consolidada das configurações avaliadas no conjunto de validação.}}{17}{table.9}\protected@file@percent }
+\newlabel{tab:ablation_comparison}{{9}{17}{Comparação consolidada das configurações avaliadas no conjunto de validação}{table.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Avaliação Final no Conjunto de Teste}{18}{subsection.3.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Desempenho final no conjunto de teste, no espaço original da variável resposta.}}{18}{table.10}\protected@file@percent }
+\newlabel{tab:final_test}{{10}{18}{Desempenho final no conjunto de teste, no espaço original da variável resposta}{table.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Desempenho final no conjunto de teste no espaço padronizado.}}{18}{table.11}\protected@file@percent }
+\newlabel{tab:final_test_scaled}{{11}{18}{Desempenho final no conjunto de teste no espaço padronizado}{table.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.8}Análise de Paridade e Resíduos}{18}{subsection.3.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Gráfico de paridade do modelo selecionado no particionamento aleatório.}}{19}{figure.14}\protected@file@percent }
+\newlabel{fig:parity_random}{{14}{19}{Gráfico de paridade do modelo selecionado no particionamento aleatório}{figure.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Gráfico de paridade do modelo selecionado no particionamento sistemático.}}{20}{figure.15}\protected@file@percent }
+\newlabel{fig:parity_systematic}{{15}{20}{Gráfico de paridade do modelo selecionado no particionamento sistemático}{figure.15}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Resumo estatístico dos resíduos no conjunto de teste.}}{20}{table.12}\protected@file@percent }
+\newlabel{tab:residual_summary}{{12}{20}{Resumo estatístico dos resíduos no conjunto de teste}{table.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Resíduos em função de $x$ no particionamento aleatório.}}{21}{figure.16}\protected@file@percent }
+\newlabel{fig:residual_x_random}{{16}{21}{Resíduos em função de $x$ no particionamento aleatório}{figure.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Resíduos em função de $x$ no particionamento sistemático.}}{22}{figure.17}\protected@file@percent }
+\newlabel{fig:residual_x_systematic}{{17}{22}{Resíduos em função de $x$ no particionamento sistemático}{figure.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Distribuição dos resíduos no particionamento aleatório.}}{23}{figure.18}\protected@file@percent }
+\newlabel{fig:residual_hist_random}{{18}{23}{Distribuição dos resíduos no particionamento aleatório}{figure.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Distribuição dos resíduos no particionamento sistemático.}}{24}{figure.19}\protected@file@percent }
+\newlabel{fig:residual_hist_systematic}{{19}{24}{Distribuição dos resíduos no particionamento sistemático}{figure.19}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Discussão e Lições Aprendidas}{24}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Efeito do Regime de Baixa Disponibilidade de Dados}{24}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Comportamento do SGD e Efeito do Momentum}{25}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Comparação entre L1 e L2}{25}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Efeito do Dropout}{25}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Interação entre Momentum e L2}{25}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Generalização para o Conjunto de Teste}{26}{subsection.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Análise dos Resíduos}{26}{subsection.4.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}Lições Aprendidas}{26}{subsection.4.8}\protected@file@percent }
+\gdef \@abspage@last{26}
