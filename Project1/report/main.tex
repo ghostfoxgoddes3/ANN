@@ -98,7 +98,10 @@ observações.
 
 \subsection{Pré-processamento e Partição dos Dados}
 
-O dataset utilizado no projeto, denominado \texttt{dataset_p1}, possui 300 observações e duas variáveis numéricas, sendo \(x\) a variável de entrada e \(y\) a variável resposta. Foram consideradas duas estratégias de partição dos dados, ambas mantendo a proporção de 10% para treinamento, 10% para validação e 80% para teste, correspondendo a 30, 30 e 240 observações, respectivamente.
+O dataset utilizado no projeto, denominado \texttt{dataset\_p1},
+possui 300 observações e duas variáveis numéricas, sendo
+\(x\) a variável de entrada do modelo, enquanto \(y\) será utilizada
+como variável-alvo da tarefa de regressão.
 
 A primeira estratégia consiste em uma partição aleatória, utilizando uma semente fixa igual a 42 para garantir a reprodutibilidade dos experimentos. A segunda consiste em uma partição sistemática baseada nas posições das observações. Nessa estratégia, foram utilizadas sequências de posições da forma
 

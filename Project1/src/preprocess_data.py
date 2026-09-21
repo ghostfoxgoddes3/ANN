@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
-
 from sklearn.preprocessing import StandardScaler
-
 
 DATASET_PATH = "data/dataset.csv"
 SPLIT_PATH = "results/split_assignments.csv"
@@ -24,11 +22,14 @@ def preprocess_split(df, split_name):
     x_scaler = StandardScaler()
     y_scaler = StandardScaler()
 
+    # ajusta os parâmetros somente no conjunto de treinamento
     x_train_scaled = x_scaler.fit_transform(x_train)
+    y_train_scaled = y_scaler.fit_transform(y_train)
+
+    # aplica os mesmos parâmetros aos demais conjuntos
     x_val_scaled = x_scaler.transform(x_val)
     x_test_scaled = x_scaler.transform(x_test)
 
-    y_train_scaled = y_scaler.fit_transform(y_train)
     y_val_scaled = y_scaler.transform(y_val)
     y_test_scaled = y_scaler.transform(y_test)
 
@@ -40,7 +41,7 @@ def preprocess_split(df, split_name):
         "y_val": y_val_scaled,
         "y_test": y_test_scaled,
         "x_scaler": x_scaler,
-        "y_scaler": y_scaler
+        "y_scaler": y_scaler,
     }
 
 
@@ -52,7 +53,7 @@ def save_split(data, split_name):
         x_test=data["x_test"],
         y_train=data["y_train"],
         y_val=data["y_val"],
-        y_test=data["y_test"]
+        y_test=data["y_test"],
     )
 
 
@@ -67,13 +68,11 @@ data_systematic = preprocess_split(split_df, "systematic")
 save_split(data_random, "random")
 save_split(data_systematic, "systematic")
 
-
 print("Preprocessing completed.")
-print()
 
 for split_name, data in [
     ("random", data_random),
-    ("systematic", data_systematic)
+    ("systematic", data_systematic),
 ]:
     print(f"{split_name.capitalize()} split:")
     print(f"  train: {data['x_train'].shape[0]}")
