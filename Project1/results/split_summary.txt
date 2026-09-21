@@ -1,0 +1,18 @@
+DATASET SPLIT SUMMARY
+=====================
+
+Dataset size: 300
+Seed: 42
+
+Random split:
+  Train: 30
+  Validation: 30
+  Test: 240
+
+Systematic split:
+  Train: 30
+  Validation: 30
+  Test: 240
+
+Systematic train remainders: [0, 10, 20]
+Systematic validation remainders: [5, 15, 25]

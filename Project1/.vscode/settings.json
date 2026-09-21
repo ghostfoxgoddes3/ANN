@@ -1,0 +1,89 @@
+{
+    // ============================================================
+    // LaTeX Workshop
+    // ============================================================
+
+    // Compilar automaticamente sempre que o arquivo for salvo
+    "latex-workshop.latex.autoBuild.run": "onSave",
+
+    // O PDF fica no mesmo diretório do arquivo .tex
+    "latex-workshop.latex.outDir": "%DIR%",
+
+    // Usar a receita latexmk como padrão
+    "latex-workshop.latex.recipe.default": "latexmk",
+
+    // ============================================================
+    // Visualizador de PDF
+    // ============================================================
+
+    // Abrir o PDF dentro do próprio VS Code
+    "latex-workshop.view.pdf.viewer": "tab",
+
+    // Usar o visualizador interno
+    "latex-workshop.view.pdf.internal.view": "tab",
+
+    // ============================================================
+    // Ferramenta de compilação
+    // ============================================================
+
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                "-pdf",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+
+                // Auxiliares ficam em ../build
+                "-auxdir=%DIR%/../build",
+
+                // PDF permanece ao lado do .tex
+                "-outdir=%DIR%",
+
+                "%DOC%"
+            ]
+        }
+    ],
+
+    // ============================================================
+    // Receita padrão
+    // ============================================================
+
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "latexmk",
+            "tools": [
+                "latexmk"
+            ]
+        }
+    ],
+
+    // ============================================================
+    // Limpeza
+    // ============================================================
+
+    // Arquivos que o LaTeX Workshop considera auxiliares
+    "latex-workshop.latex.clean.fileTypes": [
+        "*.aux",
+        "*.bbl",
+        "*.bcf",
+        "*.blg",
+        "*.fdb_latexmk",
+        "*.fls",
+        "*.idx",
+        "*.ilg",
+        "*.ind",
+        "*.lof",
+        "*.log",
+        "*.lot",
+        "*.nav",
+        "*.out",
+        "*.run.xml",
+        "*.snm",
+        "*.synctex.gz",
+        "*.toc",
+        "*.vrb"
+    ]
+}

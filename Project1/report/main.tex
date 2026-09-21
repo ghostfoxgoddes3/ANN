@@ -1,4 +1,5 @@
 \documentclass[11pt,a4paper]{article}
+
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -20,6 +21,7 @@
 
 \titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
 \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
 \titlespacing*{\section}{0pt}{1.2ex plus 0.5ex minus .2ex}{0.6ex}
 \titlespacing*{\subsection}{0pt}{1.0ex plus 0.4ex minus .2ex}{0.4ex}
 
@@ -29,140 +31,347 @@
 \begin{document}
 
 \begin{center}
-    {\LARGE \textbf{Projeto 1: Regressão com MLP e Estudo de Ablação}} \\[0.35em]
-    {\large Disciplina: Introdução às Redes Neurais Artificiais} \\[0.3em]
-    \textbf{Autor:} Gabriely Di Folco Rocha (RA: 188892) \\[0.2em]
-    \textbf{Repositório:} \url{https://github.com/ghostfoxgoddes3/ANN}
+{\LARGE \textbf{Projeto 1: Regressão com MLP e Estudo de Ablação}} \\[0.35em]
+{\large Disciplina: Introdução às Redes Neurais Artificiais} \\[0.3em]
+\textbf{Autor:} Gabriely Di Folco Rocha (RA: 188892) \\[0.2em]
+\textbf{Repositório:} \url{https://github.com/ghostfoxgoddes3/ANN}
 \end{center}
+
 \vspace{-0.5em}
 \hrule
 \vspace{0.8em}
 
+
 \section{Configuração Experimental e Reprodutibilidade}
 
-\subsection{Pré-processamento e Partição dos Dados (se necessário)}
-A partição dos dados seguiu estritamente a proporção de \textbf{10\% para treino}, \textbf{10\% para validação} e \textbf{80\% para teste}. Essa restrição intencional no volume de treino torna a tarefa suscetível ao sobreajuste, tornando a investigação de hiperparâmetros e técnicas de regularização crítica.
+\subsection{Inspeção e Caracterização dos Dados}
 
-Descreva os procedimentos de escalonamento empregados nos atributos e no alvo (ex.: padronização ou normalização \textit{Min-Max}). Ressalte que o cálculo de médias/desvios (\textit{fit}) ocorreu exclusivamente sobre os 10\% de treino, aplicando-se apenas o \textit{transform} às partições de validação e teste para mitigar vazamento de dados (\textit{data leakage}).
+O conjunto de dados utilizado no projeto possui 300 observações e duas
+variáveis numéricas, denominadas $x$ e $y$. A variável $x$ será utilizada
+como atributo de entrada do modelo, enquanto $y$ será utilizada como
+variável-alvo da tarefa de regressão.
 
-\subsection{Definição e Otimização Empírica do Modelo Baseline (Vanilla)}
-O modelo \textit{baseline} é uma rede MLP básica treinada estritamente com \textbf{SGD padrão} (sem aceleradores adaptativos como Adam e sem termo de \textit{momentum}). Nenhuma regularização explícita (L1, L2, Dropout) foi aplicada nesta fase.
+Não foram identificados valores ausentes no conjunto de dados. As duas
+variáveis apresentam tipo numérico de ponto flutuante (\texttt{float64}).
 
-A busca empírica pela melhor configuração envolveu a variação sistemática do número de camadas, neurônios por camada, taxa de aprendizado inicial ($\eta$), funções de ativação e tamanho de lote (\textit{batch size}), avaliando-se o desempenho estritamente pelo menor erro na validação. A Tabela~\ref{tab:baseline_hiper} detalha a busca empírica realizada e a topologia final selecionada.
+A variável $x$ possui 300 valores distintos, distribuídos no intervalo
+$[0,10]$. Os valores são igualmente espaçados, com uma observação para
+cada valor de $x$. A variável $y$ apresenta valores entre
+aproximadamente $-1.49$ e $2.66$.
+
+A Tabela~\ref{tab:dataset_summary} apresenta as principais estatísticas
+descritivas das variáveis.
 
 \begin{table}[h]
 \centering
 \small
-\caption{Espaço amostrado e configuração final da MLP Baseline (Vanilla).}
+\caption{Estatísticas descritivas do conjunto de dados.}
+\label{tab:dataset_summary}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Estatística} & \textbf{$x$} & \textbf{$y$} \\
+\midrule
+Contagem & 300 & 300 \\
+Média & 5.000000 & 0.465705 \\
+Desvio padrão & 2.901229 & 0.726711 \\
+Mínimo & 0.000000 & -1.488851 \\
+1º quartil & 2.500000 & -0.021091 \\
+Mediana & 5.000000 & 0.452895 \\
+3º quartil & 7.500000 & 0.988865 \\
+Máximo & 10.000000 & 2.655266 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A inspeção gráfica indica uma relação não linear entre $x$ e $y$, com
+comportamento oscilatório e dispersão das observações ao longo do domínio
+de $x$. A Figura~\ref{fig:dataset} apresenta a distribuição das
+observações.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.82\textwidth]{../figures/dataset.png}
+\caption{Distribuição das observações do conjunto de dados.}
+\label{fig:dataset}
+\end{figure}
+
+
+\subsection{Pré-processamento e Partição dos Dados}
+
+O dataset utilizado no projeto, denominado \texttt{dataset_p1}, possui 300 observações e duas variáveis numéricas, sendo \(x\) a variável de entrada e \(y\) a variável resposta. Foram consideradas duas estratégias de partição dos dados, ambas mantendo a proporção de 10% para treinamento, 10% para validação e 80% para teste, correspondendo a 30, 30 e 240 observações, respectivamente.
+
+A primeira estratégia consiste em uma partição aleatória, utilizando uma semente fixa igual a 42 para garantir a reprodutibilidade dos experimentos. A segunda consiste em uma partição sistemática baseada nas posições das observações. Nessa estratégia, foram utilizadas sequências de posições da forma
+
+$$
+r,\ r+30,\ r+60,\ldots,r+270.
+$$
+
+Três dessas sequências foram destinadas ao treinamento e três à validação, enquanto as demais observações foram destinadas ao teste. Essa construção mantém os três subconjuntos distribuídos ao longo do intervalo de valores de \(x\).
+
+Para o pré-processamento, foi utilizado o método de padronização \texttt{StandardScaler}. Os parâmetros de transformação foram ajustados exclusivamente sobre os dados de treinamento:
+
+$$
+z = \frac{x-\mu_{\mathrm{train}}}{\sigma_{\mathrm{train}}},
+$$
+
+onde \(\mu_{\mathrm{train}}\) e \(\sigma_{\mathrm{train}}\) representam, respectivamente, a média e o desvio-padrão calculados no conjunto de treinamento. Os mesmos parâmetros foram posteriormente utilizados para transformar os conjuntos de validação e teste, evitando vazamento de informação entre as partições.
+
+O mesmo procedimento foi aplicado à variável de entrada \(x\) e à variável resposta \(y\). Durante a avaliação dos modelos, as previsões poderão ser transformadas novamente para a escala original de \(y\) por meio da transformação inversa do escalonamento.
+
+
+
+\subsection{Definição e Otimização Empírica do Modelo Baseline (Vanilla)}
+
+O modelo \textit{baseline} será uma rede MLP básica treinada
+estritamente com \textbf{SGD padrão}, sem aceleradores adaptativos como
+Adam e sem termo de \textit{momentum}. Nesta etapa também não será
+utilizada regularização explícita por L1, L2 ou Dropout.
+
+A busca empírica pela configuração do modelo envolverá a variação do
+número de camadas, do número de neurônios por camada, da taxa de
+aprendizado inicial ($\eta$), da função de ativação e do tamanho do lote
+(\textit{batch size}). A seleção será realizada exclusivamente com base
+no menor erro de validação.
+
+A configuração de referência proposta para a MLP é:
+
+\[
+\text{Entrada}
+\rightarrow
+\text{Dense}(128)
+\rightarrow
+\text{ReLU}
+\rightarrow
+\text{Dense}(64)
+\rightarrow
+\text{ReLU}
+\rightarrow
+\text{Saída}(1).
+\]
+
+Os hiperparâmetros previstos para a busca são apresentados na
+Tabela~\ref{tab:baseline_hiper}. Os valores efetivamente selecionados
+serão preenchidos após a execução dos experimentos.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Espaço de busca e configuração do modelo Baseline (Vanilla).}
 \label{tab:baseline_hiper}
 \begin{tabularx}{\textwidth}{lXl}
 \toprule
-\textbf{Hiperparâmetro} & \textbf{Valores Explorados} & \textbf{Configuração Escolhida (Vanilla)} \\
+\textbf{Hiperparâmetro} &
+\textbf{Valores Explorados} &
+\textbf{Configuração Escolhida} \\
 \midrule
-Topologia das Camadas & [1, 2 e 3 camadas; [32, 64, 128, 256] neurônios] & Entrada $\rightarrow$ Densa(128) $\rightarrow$ Densa(64) $\rightarrow$ Saída(1) \\
-Função de Ativação    & ReLU, LeakyReLU, Tanh & ReLU \\
-Otimizador            & SGD Padrão (\textbf{momentum = 0.0}) & SGD ($\eta = 0.01$) \\
-Tamanho do Lote       & 16, 32, 64, 128 & 32 \\
-Função de Custo       & Erro Quadrático Médio (MSE) & MSELoss \\
-Critério de Parada    & Early Stopping (monitorando erro de validação) & Patience = 20 épocas \\
-Semente Aleatória     & Sementes fixas para reprodutibilidade & Seed = 42 \\
+
+Topologia das camadas &
+1, 2 e 3 camadas; 32, 64, 128 e 256 neurônios &
+A definir após a busca \\
+
+Função de ativação &
+ReLU, LeakyReLU, Tanh &
+A definir após a busca \\
+
+Otimizador &
+SGD padrão, sem momentum &
+A definir após a busca \\
+
+Taxa de aprendizado &
+A definir experimentalmente &
+A definir após a busca \\
+
+Tamanho do lote &
+16, 32, 64 e 128 &
+A definir após a busca \\
+
+Função de custo &
+Erro Quadrático Médio (MSE) &
+MSELoss \\
+
+Critério de parada &
+Early Stopping, monitorando o erro de validação &
+Patience = 20 épocas \\
+
+Semente aleatória &
+Semente fixa para reprodutibilidade &
+Seed = 42 \\
+
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\textcolor{red}{Inserir os erros de treino e validação dos modelos avaliados como baseline}
+Os erros de treinamento e validação dos modelos avaliados durante a
+busca serão apresentados após a execução dos experimentos.
 
-\section{Dinâmica de Treinamento e Convergência (Baseline vs. Modificados)}
 
-A evolução das curvas de função de perda (MSE) e métrica auxiliar (MAE) ao longo das épocas foi monitorada para verificar a estabilidade do SGD e comparar a dinâmica do \textit{baseline} com os modelos contendo componentes adicionais (Figura~\ref{fig:loss_evolution}).
+\section{Dinâmica de Treinamento e Convergência}
+
+A evolução das curvas de função de perda (MSE) e da métrica auxiliar
+MAE ao longo das épocas será monitorada para verificar a dinâmica de
+treinamento do SGD. Posteriormente, as curvas do modelo Baseline serão
+comparadas às obtidas pelos modelos modificados no estudo de ablação.
 
 \begin{figure}[h]
 \centering
-\begin{minipage}{0.48\textwidth}
-    \centering
-    \fbox{\parbox[c][3.8cm][c]{\linewidth}{\centering \textit{[Curva de Treino e Validação: Baseline Vanilla]}}}
-    \caption{Convergência da MLP Baseline.}
-    \label{fig:loss_baseline}
-\end{minipage}
-\hfill
-\begin{minipage}{0.48\textwidth}
-    \centering
-    \fbox{\parbox[c][3.8cm][c]{\linewidth}{\centering \textit{[Comparação das Curvas de Validação: Baseline vs. Modelos com L1, L2, Dropout, Momentum]}}}
-    \caption{Comparação de convergência na validação.}
-    \label{fig:loss_ablation}
-\end{minipage}
-\label{fig:loss_evolution}
+\fbox{
+\parbox[c][4cm][c]{0.82\textwidth}{
+\centering
+\textit{Figura a ser gerada durante os experimentos.}
+}
+}
+\caption{Curvas de treinamento e validação do modelo Baseline.}
+\label{fig:loss_baseline}
 \end{figure}
 
-\textbf{Análise Crítica da Dinâmica de Convergência:}
+A análise da dinâmica de treinamento considerará:
+
 \begin{itemize}
-    \item \textbf{Estabilidade do SGD:} Como a taxa de aprendizado influenciou oscilações no gradiente sem a presença de termos adaptativos ou de momentum?
-    \item \textbf{Sobreajuste (Overfitting):} Dado o baixo volume de dados de treinamento (10\%), em que momento o erro de treino e o erro de validação do baseline se descolaram?
-    \item \textbf{Aceleração com Momentum:} A inclusão do momentum reduziu o número de épocas necessárias para convergir em comparação com o SGD vanilla?
+    \item \textbf{Estabilidade do SGD:} comportamento das curvas de erro
+    e possíveis oscilações durante o treinamento;
+
+    \item \textbf{Sobreajuste:} comparação entre os erros de treinamento
+    e validação, considerando o baixo número de amostras disponíveis
+    para treinamento;
+
+    \item \textbf{Aceleração com Momentum:} comparação do comportamento
+    e do número de épocas necessárias para convergência entre o SGD
+    Vanilla e a versão com momentum.
 \end{itemize}
+
 
 \section{Estudo de Ablação e Desempenho no Conjunto de Teste}
 
-Para isolar rigorosamente o efeito de cada componente, a arquitetura base (camadas, ativações e sementes) foi mantida idêntica à da Tabela~\ref{tab:baseline_hiper}, avaliando-se as seguintes variações individuais:
+O estudo de ablação será realizado mantendo-se a arquitetura selecionada
+para o modelo Baseline e modificando-se individualmente componentes
+específicos do treinamento. Dessa forma, será possível analisar o efeito
+de cada componente sobre o desempenho do modelo.
+
+Serão avaliadas, inicialmente, as seguintes variações:
+
 \begin{enumerate}
-    \item \textbf{Baseline + Momentum:} SGD com fator de momentum (ex.: $\beta = 0.9$).
-    \item \textbf{Baseline + Regularização L2 (Weight Decay):} Penalização quadrática dos pesos ($\lambda_{\text{L2}}$).
-    \item \textbf{Baseline + Regularização L1 (Lasso):} Penalização por norma $L_1$ para incentivo à esparsidade ($\lambda_{\text{L1}}$).
-    \item \textbf{Baseline + Dropout:} Desativação aleatória de neurônios nas camadas ocultas ($p \in [0.1, 0.5]$).
-    \item \textbf{Outros Modelos:} Combinação dos melhores componentes identificados.
+    \item \textbf{Baseline + Momentum:} inclusão de um fator de momentum
+    no otimizador SGD;
+
+    \item \textbf{Baseline + Regularização L2:} inclusão de penalização
+    quadrática dos pesos, controlada pelo parâmetro
+    $\lambda_{\mathrm{L2}}$;
+
+    \item \textbf{Baseline + Regularização L1:} inclusão de penalização
+    pela norma $L_1$, controlada pelo parâmetro
+    $\lambda_{\mathrm{L1}}$;
+
+    \item \textbf{Baseline + Dropout:} desativação aleatória de neurônios
+    nas camadas ocultas;
+
+    \item \textbf{Modelo combinado:} combinação dos componentes que
+    apresentarem resultados relevantes nos experimentos individuais.
 \end{enumerate}
 
-\textcolor{red}{Exemplo de apresentação de resultado: } A avaliação final foi realizada sobre os 80\% de dados de teste não utilizados no treino nem no ajuste fino. Os resultados comparativos estão organizados na Tabela~\ref{tab:ablation_metrics}.
+A avaliação final será realizada sobre as 240 observações do conjunto de
+teste, que não serão utilizadas durante o treinamento ou seleção dos
+hiperparâmetros.
+
+Os resultados serão apresentados utilizando as métricas MSE, RMSE, MAE
+e $R^2$, além do número de épocas até a convergência.
 
 \begin{table}[h]
 \centering
 \small
-\caption{Resultados do Estudo de Ablação no Conjunto de Teste (80\% dos dados).}
+\caption{Resultados do estudo de ablação no conjunto de teste.}
 \label{tab:ablation_metrics}
 \begin{tabularx}{\textwidth}{lccccc}
 \toprule
-\textbf{Modelo / Variação} & \textbf{MSE} & \textbf{RMSE} & \textbf{MAE} & \textbf{$R^2$} & \textbf{Épocas até Convergência} \\
+\textbf{Modelo / Variação} &
+\textbf{MSE} &
+\textbf{RMSE} &
+\textbf{MAE} &
+\textbf{$R^2$} &
+\textbf{Épocas} \\
 \midrule
-Baseline Vanilla (SGD sem momentum) & 28.45 & 5.33 & 3.92 & 0.72 & 85 \\
-Baseline + Momentum ($\beta = 0.9$)   & 21.10 & 4.59 & 3.25 & 0.79 & 42 \\
-Baseline + Regularização L2 ($\lambda = 10^{-3}$) & 19.80 & 4.45 & 3.12 & 0.81 & 92 \\
-Baseline + Regularização L1 ($\lambda = 10^{-4}$) & 22.30 & 4.72 & 3.40 & 0.78 & 88 \\
-Baseline + Dropout ($p = 0.2$)         & 18.50 & 4.30 & 3.01 & 0.83 & 110 \\
-\textbf{Modelo Combinado (Melhor)}     & \textbf{15.20} & \textbf{3.90} & \textbf{2.68} & \textbf{0.86} & 55 \\
+
+Baseline Vanilla & -- & -- & -- & -- & -- \\
+
+Baseline + Momentum & -- & -- & -- & -- & -- \\
+
+Baseline + L2 & -- & -- & -- & -- & -- \\
+
+Baseline + L1 & -- & -- & -- & -- & -- \\
+
+Baseline + Dropout & -- & -- & -- & -- & -- \\
+
+Modelo combinado & -- & -- & -- & -- & -- \\
+
 \bottomrule
 \end{tabularx}
 \end{table}
 
+
 \begin{figure}[h]
 \centering
 \begin{minipage}{0.48\textwidth}
-    \centering
-    \fbox{\parbox[c][3.8cm][c]{\linewidth}{\centering \textit{[Figura 2: Parity Plot ($Y_{\text{real}}$ vs. $Y_{\text{pred}}$) -- Baseline vs. Melhor Modelo]}}}
-    \caption{Dispersão real vs. predito no teste ($y = x$).}
-    \label{fig:parity}
+\centering
+\fbox{
+\parbox[c][3.8cm][c]{\linewidth}{
+\centering
+\textit{Parity plot a ser gerado}
+}
+}
+\caption{Valores reais e preditos no conjunto de teste.}
+\label{fig:parity}
 \end{minipage}
 \hfill
 \begin{minipage}{0.48\textwidth}
-    \centering
-    \fbox{\parbox[c][3.8cm][c]{\linewidth}{\centering \textit{[Figura 3: Gráfico de Resíduos ($y - \hat{y}$) do Melhor Modelo]}}}
-    \caption{Distribuição dos resíduos no conjunto de teste.}
-    \label{fig:residuals}
+\centering
+\fbox{
+\parbox[c][3.8cm][c]{\linewidth}{
+\centering
+\textit{Gráfico de resíduos a ser gerado}
+}
+}
+\caption{Resíduos do modelo no conjunto de teste.}
+\label{fig:residuals}
 \end{minipage}
 \end{figure}
 
+
 \section{Discussão e Lições Aprendidas}
 
+A discussão será elaborada a partir dos resultados experimentais
+obtidos, considerando especialmente o efeito do regime de poucos dados
+sobre o treinamento e a generalização da MLP.
+
+Serão analisados os seguintes aspectos:
+
 \begin{itemize}
-    \item \textbf{Impacto do SGD Vanilla no Regime de Poucos Dados (10\% de Treino):} Discuta a susceptibilidade da rede ao sobreajuste neste cenário. Qual técnica de regularização (L1, L2 ou Dropout) exerceu maior contenção na variância do modelo?
-    \item \textbf{Ação Específica dos Hiperparâmetros de Ablação:}
-    \begin{itemize}
-        \item O \textit{momentum} alterou significativamente a suavidade e a velocidade da curva de aprendizado?
-        \item Houve diferença observável no comportamento do erro entre L1 (indução à esparsidade) e L2 (atenuação de pesos grandes)?
-        \item Em que intensidade o \textit{Dropout} impactou o erro de treino versus a generalização no teste de 80\%?
-        \item \textcolor{red}{inserir discussão sobre outras análises realizadas}
-    \end{itemize}
-    \item \textbf{Análise de Resíduos e Limitações:} O modelo apresenta assimetria ou perda de acurácia acentuada nas caudas da distribuição de valores reais? Quais padrões de erro persistem mesmo com o modelo regularizado?
-    \item \textcolor{red}{Algo mais?}
+
+    \item \textbf{Impacto do SGD Vanilla no regime de poucos dados:}
+    relação entre a quantidade reduzida de amostras de treinamento,
+    sobreajuste e desempenho de generalização;
+
+    \item \textbf{Efeito do Momentum:} alterações na velocidade e na
+    estabilidade da convergência em relação ao SGD sem momentum;
+
+    \item \textbf{Regularização L1 e L2:} comparação dos efeitos das duas
+    formas de penalização sobre os pesos e sobre o desempenho de
+    generalização;
+
+    \item \textbf{Dropout:} análise de seu efeito sobre o erro de
+    treinamento e o desempenho no conjunto de teste;
+
+    \item \textbf{Análise de resíduos:} identificação de possíveis
+    padrões, assimetrias ou regiões do domínio nas quais o modelo
+    apresenta maior erro;
+
+    \item \textbf{Limitações experimentais:} influência do reduzido
+    número de amostras de treinamento e das escolhas realizadas durante
+    a busca de hiperparâmetros.
+
 \end{itemize}
+
+As conclusões serão preenchidas após a realização dos experimentos,
+evitando inferências sobre o comportamento dos modelos antes da
+obtenção dos resultados.
+
 
 \end{document}
