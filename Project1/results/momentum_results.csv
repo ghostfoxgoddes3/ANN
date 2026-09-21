@@ -1,0 +1,3 @@
+split,hidden_layers,activation,learning_rate,batch_size,momentum,best_val_mse,best_epoch,epochs,best_train_mse,best_train_mae,best_val_mae
+random,"(128, 64)",ReLU,0.01,16,0.9,0.7018547058105469,152,172,0.6132870316505432,0.6162904500961304,0.689057469367981
+systematic,"(128, 64)",ReLU,0.01,32,0.9,0.9204686284065247,7,27,0.9754998087882996,0.7795723676681519,0.7690030336380005

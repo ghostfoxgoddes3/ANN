@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.9.20)  20 SEP 2026 21:17
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.9.20)  20 SEP 2026 21:48
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -489,52 +489,43 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
 [2 <../figures/dataset.png>]
-Overfull \hbox (11.18672pt too wide) in paragraph at lines 240--243
+Overfull \hbox (11.18672pt too wide) in paragraph at lines 309--312
 []\T1/lmr/bx/n/10.95 Aceleração com Mo-men-tum: \T1/lmr/m/n/10.95 com-para-ção do com-por-ta-mento e do número de épocas necessárias
  []
 
-
-Underfull \hbox (badness 10000) in alignment at lines 309--309
+[3]
+Underfull \hbox (badness 10000) in alignment at lines 378--378
 [][][][][][] 
  []
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Overfull \hbox (14.09998pt too wide) in paragraph at lines 322--323
+Overfull \hbox (14.09998pt too wide) in paragraph at lines 391--392
  [][] 
  []
 
 
-Overfull \hbox (14.09998pt too wide) in paragraph at lines 334--335
+Overfull \hbox (14.09998pt too wide) in paragraph at lines 403--404
  [][] 
  []
 
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[3] [4] (./main.aux)
+[4] [5] (./main.aux)
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 19B6A7B244C7CDD5A8D848722E2B9221;1991.
  ) 
 Here is how much of TeX's memory you used:
- 11283 strings out of 480247
- 172237 string characters out of 5896151
- 473183 words of memory out of 5000000
- 29018 multiletter control sequences out of 15000+600000
+ 11286 strings out of 480247
+ 172275 string characters out of 5896151
+ 473287 words of memory out of 5000000
+ 29019 multiletter control sequences out of 15000+600000
  529887 words of font info for 75 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,10n,63p,514b,396s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,11n,63p,514b,394s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}</usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb>
-Output written on main.pdf (4 pages, 309786 bytes).
+Output written on main.pdf (5 pages, 311924 bytes).
 PDF statistics:
- 139 PDF objects out of 1000 (max. 8388607)
- 107 compressed objects within 2 object streams
- 24 named destinations out of 1000 (max. 500000)
+ 146 PDF objects out of 1000 (max. 8388607)
+ 113 compressed objects within 2 object streams
+ 26 named destinations out of 1000 (max. 500000)
  62 words of extra memory for PDF output out of 10000 (max. 10000000)
 

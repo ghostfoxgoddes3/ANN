@@ -98,29 +98,46 @@ observações.
 
 \subsection{Pré-processamento e Partição dos Dados}
 
-O dataset utilizado no projeto, denominado \texttt{dataset\_p1},
-possui 300 observações e duas variáveis numéricas, sendo
-\(x\) a variável de entrada do modelo, enquanto \(y\) será utilizada
-como variável-alvo da tarefa de regressão.
+O dataset utilizado no projeto, denominado \texttt{dataset\_p1}, possui
+300 observações e duas variáveis numéricas, sendo \(x\) a variável de
+entrada e \(y\) a variável resposta. Foram consideradas duas estratégias
+de partição dos dados, ambas mantendo a proporção de 10\% para treinamento,
+10\% para validação e 80\% para teste, correspondendo a 30, 30 e 240
+observações, respectivamente.
 
-A primeira estratégia consiste em uma partição aleatória, utilizando uma semente fixa igual a 42 para garantir a reprodutibilidade dos experimentos. A segunda consiste em uma partição sistemática baseada nas posições das observações. Nessa estratégia, foram utilizadas sequências de posições da forma
+A primeira estratégia consiste em uma partição aleatória, utilizando uma
+semente fixa igual a 42 para garantir a reprodutibilidade dos experimentos.
+A segunda consiste em uma partição sistemática baseada nas posições das
+observações. Nessa estratégia, foram utilizadas sequências de posições da
+forma
 
 $$
 r,\ r+30,\ r+60,\ldots,r+270.
 $$
 
-Três dessas sequências foram destinadas ao treinamento e três à validação, enquanto as demais observações foram destinadas ao teste. Essa construção mantém os três subconjuntos distribuídos ao longo do intervalo de valores de \(x\).
+Três dessas sequências foram destinadas ao treinamento e três à validação,
+enquanto as demais observações foram destinadas ao teste. Essa construção
+mantém os três subconjuntos distribuídos ao longo do intervalo de valores
+de \(x\).
 
-Para o pré-processamento, foi utilizado o método de padronização \texttt{StandardScaler}. Os parâmetros de transformação foram ajustados exclusivamente sobre os dados de treinamento:
+Para o pré-processamento, foi utilizado o método de padronização
+\texttt{StandardScaler}. Os parâmetros de transformação foram ajustados
+exclusivamente sobre os dados de treinamento:
 
 $$
 z = \frac{x-\mu_{\mathrm{train}}}{\sigma_{\mathrm{train}}},
 $$
 
-onde \(\mu_{\mathrm{train}}\) e \(\sigma_{\mathrm{train}}\) representam, respectivamente, a média e o desvio-padrão calculados no conjunto de treinamento. Os mesmos parâmetros foram posteriormente utilizados para transformar os conjuntos de validação e teste, evitando vazamento de informação entre as partições.
+onde \(\mu_{\mathrm{train}}\) e \(\sigma_{\mathrm{train}}\) representam,
+respectivamente, a média e o desvio-padrão calculados no conjunto de
+treinamento. Os mesmos parâmetros foram posteriormente utilizados para
+transformar os conjuntos de validação e teste, evitando vazamento de
+informação entre as partições.
 
-O mesmo procedimento foi aplicado à variável de entrada \(x\) e à variável resposta \(y\). Durante a avaliação dos modelos, as previsões poderão ser transformadas novamente para a escala original de \(y\) por meio da transformação inversa do escalonamento.
-
+O mesmo procedimento foi aplicado à variável de entrada \(x\) e à
+variável resposta \(y\). Durante a avaliação dos modelos, as previsões
+poderão ser transformadas novamente para a escala original de \(y\) por
+meio da transformação inversa do escalonamento.
 
 
 \subsection{Definição e Otimização Empírica do Modelo Baseline (Vanilla)}
@@ -152,14 +169,15 @@ A configuração de referência proposta para a MLP é:
 \text{Saída}(1).
 \]
 
-Os hiperparâmetros previstos para a busca são apresentados na
-Tabela~\ref{tab:baseline_hiper}. Os valores efetivamente selecionados
-serão preenchidos após a execução dos experimentos.
+Os hiperparâmetros utilizados na busca são apresentados na
+Tabela~\ref{tab:baseline_hiper}. A busca foi realizada separadamente
+para as partições aleatória e sistemática.
 
 \begin{table}[h]
 \centering
 \small
-\caption{Espaço de busca e configuração do modelo Baseline (Vanilla).}
+\caption{Espaço de busca e configurações selecionadas para o modelo
+Baseline (Vanilla).}
 \label{tab:baseline_hiper}
 \begin{tabularx}{\textwidth}{lXl}
 \toprule
@@ -169,24 +187,24 @@ serão preenchidos após a execução dos experimentos.
 \midrule
 
 Topologia das camadas &
-1, 2 e 3 camadas; 32, 64, 128 e 256 neurônios &
-A definir após a busca \\
+$(32)$, $(64)$, $(128)$, $(32,32)$, $(64,64)$ e $(128,64)$ &
+$(128,64)$ para ambas \\
 
 Função de ativação &
-ReLU, LeakyReLU, Tanh &
-A definir após a busca \\
+ReLU e Tanh &
+ReLU para ambas \\
 
 Otimizador &
 SGD padrão, sem momentum &
-A definir após a busca \\
+SGD, momentum = 0 \\
 
 Taxa de aprendizado &
-A definir experimentalmente &
-A definir após a busca \\
+$0,001$ e $0,01$ &
+$0,01$ para ambas \\
 
 Tamanho do lote &
-16, 32, 64 e 128 &
-A definir após a busca \\
+8, 16 e 32 &
+16 (aleatória); 32 (sistemática) \\
 
 Função de custo &
 Erro Quadrático Médio (MSE) &
@@ -204,8 +222,59 @@ Seed = 42 \\
 \end{tabularx}
 \end{table}
 
-Os erros de treinamento e validação dos modelos avaliados durante a
-busca serão apresentados após a execução dos experimentos.
+Foram avaliadas 72 combinações de hiperparâmetros para cada estratégia
+de partição. A seleção foi realizada exclusivamente pelo menor MSE
+obtido no conjunto de validação, mantendo o conjunto de teste intocado.
+
+Para a partição aleatória, a configuração selecionada foi composta por
+duas camadas ocultas, com 128 e 64 neurônios, respectivamente, ativação
+ReLU, taxa de aprendizado $0,01$ e tamanho de lote 16. O menor MSE de
+validação foi $0,818838$, obtido na época 564. O treinamento foi
+encerrado na época 584 após o critério de parada antecipada.
+
+Para a partição sistemática, a configuração selecionada também foi
+composta por duas camadas ocultas, com 128 e 64 neurônios, ativação
+ReLU e taxa de aprendizado $0,01$, mas com tamanho de lote 32. O menor
+MSE de validação foi $0,770725$, obtido na época 998. O treinamento
+atingiu o limite máximo de 1000 épocas.
+
+Os resultados resumidos da busca são apresentados na
+Tabela~\ref{tab:baseline_resultados}.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Melhores resultados obtidos na busca do modelo Baseline
+(Vanilla).}
+\label{tab:baseline_resultados}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Partição} &
+\textbf{Arquitetura} &
+\textbf{Ativação} &
+\textbf{Batch} &
+\textbf{MSE val.} &
+\textbf{Melhor época} \\
+\midrule
+Aleatória &
+$(128,64)$ &
+ReLU &
+16 &
+0,818838 &
+564 \\
+
+Sistemática &
+$(128,64)$ &
+ReLU &
+32 &
+0,770725 &
+998 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Os erros de treinamento e validação ao longo das épocas serão analisados
+na etapa de dinâmica de treinamento.
 
 
 \section{Dinâmica de Treinamento e Convergência}
