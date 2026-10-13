@@ -1,0 +1,700 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{amsmath,amssymb}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\sisetup{output-decimal-marker={,}}
+
+\title{Projeto 2: Quantização de Cores com SOM e GNG}
+\author{Gabriely Di Folco Rocha\\
+\small Introdução às Redes Neurais Artificiais}
+\date{14 de outubro de 2026}
+
+% Ajuste estes caminhos se o relatório estiver em outra pasta.
+% Estrutura esperada: relatório na raiz de Project2/, imagens em figures/resized/
+% e reconstruções em results/.
+\newcommand{\placeholder}[1]{%
+  \fbox{\parbox[c][4.0cm][c]{0.88\linewidth}{\centering #1}}}
+\newcommand{\TEpct}[1]{#1\%}
+
+\begin{document}
+\maketitle
+
+\section{Procedimento Experimental}
+
+\subsection{Objetivo e imagens}
+
+Este projeto compara duas redes neurais competitivas não supervisionadas,
+Self-Organizing Map (SOM) e Growing Neural Gas (GNG), na quantização de cores
+de imagens. O objetivo é representar a variedade de cores de cada imagem com
+um conjunto limitado de protótipos RGB e avaliar tanto a fidelidade da
+representação quanto uma medida de organização topológica.
+
+Cada pixel é tratado como uma amostra tridimensional,
+\[
+\mathbf{x}=(R,G,B)\in[0,1]^3.
+\]
+Os valores dos canais são normalizados dividindo-se os valores originais por
+255. A posição espacial do pixel não é usada no treinamento: a rede recebe
+somente os três valores de cor. Após o treinamento, cada pixel é substituído
+pelo vetor de pesos do neurônio mais próximo, denominado vencedor ou
+\textit{Best Matching Unit} (BMU). A imagem reconstruída mantém as dimensões
+originais, mas utiliza somente as cores dos protótipos aprendidos.
+
+Foram selecionadas três imagens para a comparação principal: \texttt{berlim},
+\texttt{canudos} e \texttt{debret11}. As imagens foram redimensionadas para que
+o maior lado tivesse no máximo 500 pixels, preservando-se a proporção. A
+Tabela~\ref{tab:images} apresenta o número de pixels utilizado na avaliação.
+
+\begin{table}[H]
+\centering
+\caption{Imagens selecionadas para os experimentos.}
+\label{tab:images}
+\begin{tabular}{lrr}
+\toprule
+Imagem & Pixels avaliados & Pixels na amostra de treino\\
+\midrule
+Berlim & 178\,500 & 5\,000\\
+Canudos & 185\,500 & 5\,000\\
+Debret 1 & 150\,000 & 5\,000\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.31\linewidth}
+\centering
+\IfFileExists{figures/resized/berlim.png}
+{\includegraphics[width=\linewidth]{figures/resized/berlim.png}}
+{\placeholder{Inserir imagem original\\Berlim}}
+\caption{Berlim}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.31\linewidth}
+\centering
+\IfFileExists{figures/resized/canudos.png}
+{\includegraphics[width=\linewidth]{figures/resized/canudos.png}}
+{\placeholder{Inserir imagem original\\Canudos}}
+\caption{Canudos}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.31\linewidth}
+\centering
+\IfFileExists{figures/resized/debret11.png}
+{\includegraphics[width=\linewidth]{figures/resized/debret1.png}}
+{\placeholder{Inserir imagem original\\Debret 1}}
+\caption{Debret 1}
+\end{subfigure}
+\caption{Imagens utilizadas na comparação.}
+\label{fig:originals}
+\end{figure}
+
+\subsection{Redes e treinamento}
+
+O SOM organiza seus neurônios em uma grade bidimensional fixa. Em cada
+apresentação, identifica-se o BMU e atualizam-se seus pesos e os pesos dos
+neurônios vizinhos, com influência determinada pela distância na grade. Foram
+testadas grades \(4\times4\), \(8\times8\) e \(16\times16\), correspondentes a
+16, 64 e 256 neurônios.
+
+O GNG começa com dois neurônios e modifica a topologia durante o treinamento.
+O algoritmo atualiza o vencedor e seus vizinhos, mantém conexões entre
+neurônios, remove conexões antigas e insere novos neurônios em regiões de erro
+acumulado elevado. Foram testados limites de 16, 64 e 256 neurônios. O número
+final de neurônios observado em cada execução atingiu o limite configurado.
+
+Para cada imagem, foi selecionada uma amostra de 5\,000 pixels sem reposição.
+A mesma amostra foi reutilizada entre configurações e sementes para permitir
+comparações controladas. Cada modelo foi treinado com as sementes 42, 43 e 44,
+totalizando três execuções independentes por configuração. O orçamento de
+treinamento do GNG foi de 60\,000 passos, amostrando pixels com reposição. Para
+o SOM, o orçamento foi aproximado por 12 épocas completas sobre a amostra de
+5\,000 pixels, também totalizando 60\,000 apresentações de pixels.
+
+Os parâmetros usados no GNG foram: taxa de aprendizagem do vencedor igual a
+0,05, taxa dos vizinhos igual a 0,0006, idade máxima das arestas igual a 50,
+inserção de neurônios a cada 100 passos, \(\alpha=0,5\) e decaimento do erro
+acumulado por fator \(1-\beta\), com \(\beta=0,0005\). Esses valores descrevem
+a implementação utilizada neste experimento.
+
+No SOM, a taxa de aprendizagem e o raio de vizinhança foram reduzidos
+linearmente ao longo das épocas. A implementação utilizada leva esses valores
+próximos de zero na última época. Essa programação difere da configuração da
+referência consultada, na qual a taxa de aprendizagem termina em um valor
+positivo e o raio de vizinhança termina em 0,5; portanto, os resultados não
+devem ser interpretados como uma reprodução exata daquela configuração.
+
+\begin{table}[H]
+\centering
+\caption{Configurações da comparação principal.}
+\label{tab:params}
+\begin{tabular}{p{0.34\linewidth}p{0.56\linewidth}}
+\toprule
+Parâmetro & Configuração\\
+\midrule
+Imagens & Berlim, Canudos e Debret 1\\
+Amostra por imagem & 5\,000 pixels, sem reposição\\
+Sementes & 42, 43 e 44\\
+Orçamento de treinamento & 60\,000 apresentações/passos por execução\\
+SOM & Grades \(4\times4\), \(8\times8\) e \(16\times16\)\\
+GNG & Limites de 16, 64 e 256 neurônios\\
+GNG: taxa do vencedor & 0,05\\
+GNG: taxa dos vizinhos & 0,0006\\
+GNG: idade máxima de aresta & 50 passos\\
+GNG: inserção & A cada 100 passos\\
+GNG: parâmetros de erro & \(\alpha=0,5\), \(\beta=0,0005\)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Métricas}
+
+\paragraph{Erro de quantização (QE).}
+O QE é a distância euclidiana RGB média entre cada pixel avaliado e seu
+protótipo vencedor. Para \(M\) pixels avaliados,
+\[
+\mathrm{QE}=\frac{1}{M}\sum_{j=1}^{M}
+\left\|\mathbf{x}_j-\mathbf{w}_{b(j)}\right\|_2,
+\]
+em que \(b(j)\) é o índice do BMU do pixel \(\mathbf{x}_j\) e
+\(\mathbf{w}_{b(j)}\) é o vetor de pesos correspondente. Valores menores
+indicam que as cores reconstruídas estão, em média, mais próximas das cores
+originais.
+
+\paragraph{Erro topológico (TE).}
+O TE é a fração de pixels para os quais o primeiro e o segundo neurônios mais
+próximos não são vizinhos na topologia da rede. No SOM, são vizinhos os
+neurônios adjacentes horizontal ou verticalmente na grade; no GNG, são
+vizinhos os neurônios ligados por uma aresta no grafo final. Se \(a_1(j)\) e
+\(a_2(j)\) são os dois neurônios mais próximos do pixel \(j\), então
+\[
+\mathrm{TE}=\frac{1}{M}\sum_{j=1}^{M}
+\mathbb{1}\!\left[a_1(j)\not\sim a_2(j)\right].
+\]
+O TE é apresentado em porcentagem nas tabelas. Como a topologia do SOM é fixa
+e a do GNG é aprendida, os valores devem ser interpretados conforme a
+estrutura de cada modelo. Um TE menor não implica, isoladamente, melhor
+qualidade global de quantização.
+
+Para cada combinação de imagem, modelo e configuração, foram calculadas a
+média e o desvio-padrão amostral das três sementes. O desvio-padrão descreve a
+variação entre execuções, não a incerteza associada a uma amostra aleatória de
+todas as imagens possíveis.
+
+\section{Resultados quantitativos}
+
+As Tabelas~\ref{tab:berlim}--\ref{tab:debret1} apresentam média \(\pm\) desvio
+padrão amostral. O QE é apresentado na escala RGB normalizada; o TE é
+apresentado em porcentagem.
+
+\begin{table}[H]
+\centering
+\caption{Resultados para Berlim.}
+\label{tab:berlim}
+\small
+\begin{tabular}{llrr}
+\toprule
+Modelo & Configuração & QE médio \(\pm\) DP & TE (\%) médio \(\pm\) DP\\
+\midrule
+SOM & \(4\times4\) & 0,05347 \(\pm\) 0,00074 & 49,01 \(\pm\) 5,15\\
+SOM & \(8\times8\) & 0,03222 \(\pm\) 0,00029 & 53,60 \(\pm\) 0,39\\
+SOM & \(16\times16\) & 0,02260 \(\pm\) 0,00012 & 57,75 \(\pm\) 0,85\\
+GNG & 16 neurônios & 0,05335 \(\pm\) 0,00042 & 0,47 \(\pm\) 0,62\\
+GNG & 64 neurônios & 0,03093 \(\pm\) 0,00011 & 0,76 \(\pm\) 0,19\\
+GNG & 256 neurônios & 0,02098 \(\pm\) 0,00008 & 3,36 \(\pm\) 0,27\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Resultados para Canudos.}
+\label{tab:canudos}
+\small
+\begin{tabular}{llrr}
+\toprule
+Modelo & Configuração & QE médio \(\pm\) DP & TE (\%) médio \(\pm\) DP\\
+\midrule
+SOM & \(4\times4\) & 0,03013 \(\pm\) 0,00012 & 57,51 \(\pm\) 2,21\\
+SOM & \(8\times8\) & 0,01456 \(\pm\) 0,00014 & 70,61 \(\pm\) 0,38\\
+SOM & \(16\times16\) & 0,00943 \(\pm\) 0,00015 & 68,59 \(\pm\) 2,30\\
+GNG & 16 neurônios & 0,02982 \(\pm\) 0,00008 & 0,00 \(\pm\) 0,00\\
+GNG & 64 neurônios & 0,01328 \(\pm\) 0,00002 & 0,22 \(\pm\) 0,14\\
+GNG & 256 neurônios & 0,00808 \(\pm\) 0,00002 & 2,04 \(\pm\) 0,16\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Resultados para Debret 1.}
+\label{tab:debret1}
+\small
+\begin{tabular}{llrr}
+\toprule
+Modelo & Configuração & QE médio \(\pm\) DP & TE (\%) médio \(\pm\) DP\\
+\midrule
+SOM & \(4\times4\) & 0,04465 \(\pm\) 0,00006 & 57,34 \(\pm\) 7,30\\
+SOM & \(8\times8\) & 0,02748 \(\pm\) 0,00012 & 60,78 \(\pm\) 3,25\\
+SOM & \(16\times16\) & 0,01917 \(\pm\) 0,00010 & 56,07 \(\pm\) 1,17\\
+GNG & 16 neurônios & 0,04441 \(\pm\) 0,00010 & 0,09 \(\pm\) 0,09\\
+GNG & 64 neurônios & 0,02656 \(\pm\) 0,00003 & 0,70 \(\pm\) 0,43\\
+GNG & 256 neurônios & 0,01775 \(\pm\) 0,00005 & 3,53 \(\pm\) 0,54\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Interpretação das métricas}
+
+Nas três imagens, o QE diminuiu quando aumentou o número de neurônios, tanto
+no SOM quanto no GNG. Esse padrão é compatível com a maior capacidade de
+representação oferecida por uma paleta com mais protótipos. Em configurações
+com o mesmo número nominal de neurônios, o GNG apresentou QE médio ligeiramente
+menor que o SOM nas três imagens. As diferenças são empíricas e estão
+condicionadas às amostras, sementes e parâmetros utilizados.
+
+Os desvios-padrão do QE foram pequenos em relação às médias, sugerindo que a
+métrica foi relativamente estável entre as três sementes deste experimento.
+Essa estabilidade não elimina a possibilidade de variação em outras imagens,
+amostras ou configurações de treinamento.
+
+O TE do SOM permaneceu elevado nas três imagens e não decresceu de forma
+monótona com o aumento da grade. Em Canudos, por exemplo, o TE médio aumentou
+de 57,51\% na grade \(4\times4\) para 70,61\% na grade \(8\times8\), antes de
+diminuir para 68,59\% na grade \(16\times16\). O resultado mostra que melhorar
+a quantização de cores não garante, por si só, reduzir o erro topológico.
+
+O TE do GNG foi baixo em todas as configurações avaliadas, embora tenha
+aumentado na configuração de 256 neurônios. Essa medida verifica a adjacência
+entre os dois protótipos mais próximos segundo o grafo final do GNG; portanto,
+não é diretamente equivalente à adjacência na grade fixa do SOM. O TE deve ser
+usado como diagnóstico da organização relativa dos vencedores, e não como
+medida isolada da fidelidade visual.
+
+\section{Reconstruções das imagens}
+
+As reconstruções são apresentadas em mosaicos para facilitar a comparação entre
+as configurações. Cada linha corresponde a uma imagem e cada coluna a uma
+configuração. As figuras são geradas pelo script
+\texttt{src/generate\_mosaics.py} a partir das reconstruções salvas em
+\texttt{results/}. Os mosaicos de paletas SOM são construídos a partir dos
+pesos finais exportados pelo treinamento; por isso, é necessário acrescentar
+ao laço de treinamento a gravação dos pesos em arquivo, conforme indicado no
+código complementar.
+
+\subsection{Berlim}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/berlim_som_4x4_seed42.png}
+        \caption*{(a) SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/berlim_som_8x8_seed42.png}
+        \caption*{(b) SOM $8\times8$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/berlim_som_16x16_seed42.png}
+        \caption*{(c) SOM $16\times16$}
+    \end{minipage}
+
+    \caption{Reconstruções de Berlim pelo SOM, com semente 42 e diferentes dimensões de grade.}
+    \label{fig:berlim-som}
+\end{figure}
+
+\subsection{Berlim}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/berlim_gng_16.png}
+        \caption*{(a) GNG 16}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/berlim_gng_64.png}
+        \caption*{(b) GNG 64}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/berlim_gng_256_seed42.png}
+        \caption*{(c) GNG 256}
+    \end{minipage}
+
+    \caption{Reconstruções de Berlim pelo GNG, com semente 42 e diferentes dimensões de grade.}
+    \label{fig:berlim-som}
+\end{figure}
+
+\subsection{Berlim}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/palettes/berlim_som_4x4_seed42_weights_palette.png}
+        \caption*{(a) paleta SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/palettes/berlim_som_8x8_seed42_weights_palette.png}
+        \caption*{(b) SOM $8\times8$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/palettes/berlim_som_16x16_seed42_weights_palette.png}
+        \caption*{(c) paleta SOM $16\times16$}
+    \end{minipage}
+
+    \caption{Paletas geradas nessa abordagem SOM.}
+    \label{fig:berlim-som}
+\end{figure}
+
+\subsection{Canudos}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/canudos_som_4x4_seed42.png}
+        \caption*{(a) SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/canudos_som_8x8_seed42.png}
+        \caption*{(b) SOM $8\times8$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/canudos_som_16x16_seed42.png}
+        \caption*{(c) SOM $16\times16$}
+    \end{minipage}
+
+    \caption{Reconstruções de Berlim pelo SOM, com semente 42 e diferentes dimensões de grade.}
+    \label{fig:canudos-som}
+\end{figure}
+
+\subsection{Canudos}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/canudos_gng_16.png}
+        \caption*{(a) GNG 16}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/canudos_gng_64.png}
+        \caption*{(b) GNG 64}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/canudos_gng_256_seed42.png}
+        \caption*{(c) GNG 256}
+    \end{minipage}
+
+    \caption{Reconstruções de Canudos pelo GNG, com semente 42 e diferentes dimensões de grade.}
+    \label{fig:berlim-som}
+\end{figure}
+
+\subsection{Canudos}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/palettes/canudos_som_4x4_seed42_weights_palette.png}
+        \caption*{(a) paleta SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/palettes/canudos_som_8x8_seed42_weights_palette.png}
+        \caption*{(b) SOM $8\times8$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/palettes/canudos_som_16x16_seed42_weights_palette.png}
+        \caption*{(c) paleta SOM $16\times16$}
+    \end{minipage}
+
+    \caption{Paletas geradas nessa abordagem SOM.}
+    \label{fig:canudos-som}
+\end{figure}
+\subsection{Debret}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/debret1_som_4x4_seed42.png}
+        \caption*{(a) SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/debret1_som_8x8_seed42.png}
+        \caption*{(b) SOM $8\times8$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/debret1_som_16x16_seed42.png}
+        \caption*{(c) SOM $16\times16$}
+    \end{minipage}
+
+    \caption{Reconstruções de Debret pelo SOM, com semente 42 e diferentes dimensões de grade.}
+    \label{fig:canudos-som}
+\end{figure}
+
+\subsection{Debret}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/debret1_gng_16.png}
+        \caption*{(a) GNG 16}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/debret1_gng_64.png}
+        \caption*{(b) GNG 64}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/debret1_gng_256_seed42.png}
+        \caption*{(c) GNG 256}
+    \end{minipage}
+
+    \caption{Reconstruções de Canudos pelo GNG, com semente 42 e diferentes dimensões de grade.}
+    \label{fig:debret1-som}
+\end{figure}
+
+\subsection{Debret}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/palettes/debret1_som_4x4_seed42_weights_palette.png}
+        \caption*{(a) paleta SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/palettes/debret1_som_8x8_seed42_weights_palette.png}
+        \caption*{(b) SOM $8\times8$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/palettes/debret1_som_16x16_seed42_weights_palette.png}
+        \caption*{(c) paleta SOM $16\times16$}
+    \end{minipage}
+
+    \caption{Paletas geradas nessa abordagem SOM.}
+    \label{fig:debret1-som}
+\end{figure}
+
+A leitura conjunta das reconstruções e das paletas permite observar dois
+aspectos distintos: as reconstruções mostram como a redução da paleta afeta a
+imagem inteira, enquanto as paletas exibem os protótipos na organização
+espacial imposta pela grade SOM. A posição dos quadrados na paleta representa
+a posição do neurônio na grade, não a posição de pixels na imagem original.
+
+\section{Reconstruções resumidas}
+\subsection{Greve dos metalúrgicos}
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/resized/lula.png}
+        \caption*{(a) imagem original}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/lula_som_4x4.png}
+        \caption*{(b) SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/lula_gng_16.png}
+        \caption*{(c) GNG}
+    \end{minipage}
+
+    \caption{visão resumida}
+    \label{fig:lula-som}
+\end{figure}
+
+\subsection{Debret}
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/resized/debret2.png}
+        \caption*{(a) imagem original}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/debret2_som_4x4.png}
+        \caption*{(b) SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/debret2_gng_16.png}
+        \caption*{(c) GNG 16}
+    \end{minipage}
+
+    \caption{visão resumida}
+    \label{fig:debret2-som}
+\end{figure}
+
+\subsection{Eliseu Visconti}
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/resized/eliseu_visconti.png}
+        \caption*{(a) imagem original}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/eliseu_visconti_som_4x4.png}
+        \caption*{(b) SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/eliseu_visconti_gng_16.png}
+        \caption*{(c) GNG 16}
+    \end{minipage}
+
+    \caption{visão resumida}
+    \label{fig:eliseu_visconti-som}
+\end{figure}
+
+\subsection{Georgina de Abulquerque}
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/resized/georgina.png}
+        \caption*{(a) imagem original}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/georgina_som_4x4.png}
+        \caption*{(b) SOM $4\times4$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{results/georgina_gng_16.png}
+        \caption*{(c) GNG 16}
+    \end{minipage}
+
+    \caption{visão resumida}
+    \label{fig:georgina-som}
+\end{figure}
+
+\section{Limitações e trabalho futuro}
+
+Os resultados constituem uma comparação inicial, com três imagens, uma amostra
+de treinamento de 5\,000 pixels por imagem e três sementes por configuração.
+Embora as sementes permitam avaliar a variação entre execuções, a quantidade
+de imagens é pequena para generalizar as conclusões a todas as classes de
+imagem.
+
+Além disso, o orçamento de treinamento do SOM foi implementado como 12 épocas
+completas, com redução linear da taxa de aprendizagem e do raio de vizinhança
+até valores próximos de zero na última época. Essa configuração difere da
+agenda de parâmetros descrita na referência usada como modelo de organização
+do relatório. Os parâmetros do GNG também não são idênticos aos da referência,
+em particular a taxa dos vizinhos, a idade máxima das arestas e o decaimento do
+erro acumulado. Assim, a comparação apresentada é válida para as implementações
+e configurações efetivamente executadas, mas não constitui reprodução exata
+dos resultados de referência.
+
+Como continuação, recomenda-se testar uma agenda de aprendizagem do SOM que
+mantenha os valores finais positivos, avaliar mais imagens e incluir
+visualizações diagnósticas: U-matrix, ocupação dos neurônios, distribuição dos
+canais RGB e grafo final do GNG. Essas visualizações ajudariam a explicar a
+organização dos protótipos e as diferenças observadas nas métricas.
+
+\section{Conclusões}
+
+Neste experimento, SOM e GNG foram aplicados à quantização de cores em três
+imagens, usando redes com 16, 64 e 256 neurônios. O aumento da quantidade de
+neurônios reduziu consistentemente o erro de quantização em ambas as redes. O
+GNG apresentou QE médio ligeiramente inferior ao SOM nas comparações com o
+mesmo número de neurônios, enquanto o desvio-padrão entre as três sementes foi
+pequeno para essa métrica.
+
+O erro topológico apresentou comportamentos distintos: no SOM, os valores
+foram elevados e não diminuíram monotonamente com o tamanho da grade; no GNG,
+foram baixos segundo a adjacência do grafo aprendido. Essa diferença precisa
+ser interpretada considerando que cada modelo define sua própria noção de
+vizinhança. Portanto, os resultados favorecem o GNG quanto ao QE nas
+configurações avaliadas, mas não justificam uma conclusão universal de
+superioridade entre os algoritmos.
+
+\section*{Referências}
+
+\begin{enumerate}
+\item KOHONEN, T. \textit{Self-Organizing Maps}. 3. ed. Berlin: Springer, 2001.
+\item FRITZKE, B. A growing neural gas network learns topologies. In:
+\textit{Advances in Neural Information Processing Systems}, v. 7, 1995.
+\end{enumerate}
+
+\end{document}
