@@ -21,3 +21,8 @@ venv/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# Projeto 3 - dados brutos e artefatos
+Project3/data/*.gz
+Project3.zip
+Project3_enxuto.zip

@@ -1,0 +1,23 @@
+# ambiente virtual
+.venv/
+
+# arquivos Python temporarios
+__pycache__/
+*.pyc
+
+# dados brutos baixados (Fashion-MNIST)
+data/*.gz
+
+# checkpoints de modelo
+results/*.pt
+
+# saidas de compilacao LaTeX
+report/*.aux
+report/*.log
+report/*.out
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz
+
+# arquivos temporarios
+*.tmp
