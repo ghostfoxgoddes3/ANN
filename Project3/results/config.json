@@ -1,0 +1,27 @@
+{
+  "seed": 42,
+  "batch_size": 256,
+  "search_epochs": 8,
+  "final_epochs": 20,
+  "search_subset": 20000,
+  "beta": 1.0,
+  "lr": 0.001,
+  "topologies": [
+    [
+      256
+    ],
+    [
+      512,
+      256
+    ],
+    [
+      512,
+      256,
+      128
+    ]
+  ],
+  "latent_dims": [
+    2,
+    8
+  ]
+}

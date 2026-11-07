@@ -1,0 +1,3 @@
+latent_dim,projection,explained_var_pc1,explained_var_pc2,explained_var_2d
+2,direta,,,
+8,PCA,0.1797,0.1658,0.3455
