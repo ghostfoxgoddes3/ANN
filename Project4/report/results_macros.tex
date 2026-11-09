@@ -1,0 +1,31 @@
+\newcommand{\WINDOW}{24}
+\newcommand{\HORIZON}{6}
+\newcommand{\GAP}{30}
+\newcommand{\RAINTH}{0,2}
+\newcommand{\NREG}{26304}
+\newcommand{\NFEAT}{13}
+\newcommand{\NWIN}{26275}
+\newcommand{\POSRATE}{0,1721}
+\newcommand{\SPLITRATES}{%
+Cronol\'ogica & Treino & 18362 & 0,1784 \\
+Cronol\'ogica & Valida\c c\~ao & 3881 & 0,1301 \\
+Cronol\'ogica & Teste & 3912 & 0,1897 \\
+Aleat\'oria & Treino & 18392 & 0,1723 \\
+Aleat\'oria & Valida\c c\~ao & 3941 & 0,1675 \\
+Aleat\'oria & Teste & 3942 & 0,1761 \\
+}
+\newcommand{\BESTCONFIGS}{%
+Cronol\'ogica & GRU & 64 & 2 & 0,7002 & 0,4747 \\
+Aleat\'oria & LSTM & 64 & 2 & 0,2281 & 0,8709 \\
+}
+\newcommand{\TESTRESULTS}{%
+Cronol\'ogica & GRU & 0,7717 & 0,4473 & 0,8639 & 0,5894 & 0,8960 \\
+Aleat\'oria & LSTM & 0,9444 & 0,7851 & 0,9424 & 0,8566 & 0,9844 \\
+}
+\newcommand{\SPLITCOMPARISON}{%
+Acur\'acia & 0,7717 & 0,9444 & 0,1727 \\
+Precis\~ao & 0,4473 & 0,7851 & 0,3378 \\
+Revoca\c c\~ao & 0,8639 & 0,9424 & 0,0785 \\
+F1 & 0,5894 & 0,8566 & 0,2672 \\
+AUC & 0,8960 & 0,9844 & 0,0884 \\
+}

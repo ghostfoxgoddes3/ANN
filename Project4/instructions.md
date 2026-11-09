@@ -1,0 +1,5 @@
+Implementar um modelo LSTM ou GRU para uma das tarefas abaixo:
+Classificação de série temporais. O modelo deve receber uma janela temporal (qualquer tipo de dado) e classificar o conteúdo da janela.
+Previsão. Treinar um modelo para predizer o valor de uma variável no instante t+k. O modelo deve receber os dados da série temporal (instantes anteriores a t – verificar tamanho da janela) e predizer um favor futuro. k a distância da predição. Por exemplo, podemos alimentar um modelo com dados de uma dada empresa (i.e. PETR3) e tentar predizer qual será o valor da ação daqui 5 dias (k=5)
+Para qualquer cenário escolhido, o modelo deve ter seus hiperâmetros ajustados considerando um conjunto de validação.
+O relatório deve considerar a mesma estrutura do projeto 1, apresentando o processo de ajuste da topologia, taxas, gráficos ilustrando a curva de aprendizagem e métricas de avaliação.

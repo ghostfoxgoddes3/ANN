@@ -1,0 +1,7 @@
+Estação: SAO PAULO - MIRANTE (A701)
+Anos: (2022, 2023, 2024)
+Janela (WINDOW): 24 h | Horizonte (HORIZON): 6 h
+Limiar de chuva: 0.2 mm
+Total de janelas: 26275
+Proporção de chuva (classe 1): 0.1721
+Variáveis (13): ['precip', 'pressure', 'radiation', 'temp', 'dew_point', 'humidity', 'wind_dir', 'wind_speed', 'hour_sin', 'hour_cos', 'doy_sin', 'doy_cos', 'oni']

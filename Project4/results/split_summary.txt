@@ -1,0 +1,14 @@
+SPLIT SUMMARY
+=============
+Total de janelas: 26275
+Seed: 42 | gap cronológico: 30 janelas
+
+[chronological]
+  train:  18362 janelas | chuva=0.1784
+  val  :   3881 janelas | chuva=0.1301
+  test :   3912 janelas | chuva=0.1897
+
+[random]
+  train:  18392 janelas | chuva=0.1723
+  val  :   3941 janelas | chuva=0.1675
+  test :   3942 janelas | chuva=0.1761

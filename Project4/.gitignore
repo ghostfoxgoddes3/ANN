@@ -1,0 +1,21 @@
+# Ambiente
+.venv/
+__pycache__/
+*.pyc
+
+# Dados brutos e janelas (grandes; regeneráveis via src.data)
+data/raw/
+data/*.npz
+
+# Artefatos de treino (regeneráveis)
+results/*.pt
+
+# Saídas de compilação LaTeX
+report/*.aux
+report/*.log
+report/*.out
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz
+report/*.bbl
+report/*.blg
